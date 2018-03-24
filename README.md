@@ -1,7 +1,7 @@
 # Shinobytes.Console.Forms
 
 
-![](https://github.com/zerratar/Shinobytes.Console.Forms/blob/master/samples/Screenshots/0.png) ![](https://github.com/zerratar/Shinobytes.Console.Forms/blob/master/samples/Screenshots/0.png)
+![](https://github.com/zerratar/Shinobytes.Console.Forms/blob/master/samples/Screenshots/0.png)
 
 
 ## Introduction
