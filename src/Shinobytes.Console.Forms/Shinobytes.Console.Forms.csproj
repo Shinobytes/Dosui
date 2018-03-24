@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{66486D47-DF67-4B87-B89E-8A9DA48CDFBC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Shinobytes.Console.Forms</RootNamespace>
+    <AssemblyName>Shinobytes.Console.Forms</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\build\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Application.cs" />
+    <Compile Include="AsciiCodes.cs" />
+    <Compile Include="ContainerControl.cs" />
+    <Compile Include="Control.cs" />
+    <Compile Include="ControlCollection.cs" />
+    <Compile Include="DialogResult.cs" />
+    <Compile Include="DrawStringOperation.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Graphics\CharInfo.cs" />
+    <Compile Include="Graphics\ColorRef.cs" />
+    <Compile Include="Graphics\ConsoleGraphics.cs" />
+    <Compile Include="Graphics\ConsoleAppBase.cs" />
+    <Compile Include="Graphics\ConsoleSprite.cs" />
+    <Compile Include="Graphics\ConsoleScreenBufferInfoEx.cs" />
+    <Compile Include="Graphics\Coord.cs" />
+    <Compile Include="Graphics\AppTime.cs" />
+    <Compile Include="Graphics\IGraphics.cs" />
+    <Compile Include="Graphics\SmallRect.cs" />
+    <Compile Include="Graphics\ConsoleImage.cs" />
+    <Compile Include="Graphics\Spritesheet.cs" />
+    <Compile Include="Graphics\Viewport.cs" />
+    <Compile Include="KeyInfo.cs" />
+    <Compile Include="MenuItem.cs" />
+    <Compile Include="MenuStrip.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeparatorMenuItem.cs" />
+    <Compile Include="TextBlock.cs" />
+    <Compile Include="Window.cs" />
+    <Compile Include="WindowManager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
