@@ -7,7 +7,8 @@ namespace Shinobytes.Console.Forms
     public class Application : ConsoleAppBase
     {
         private readonly Window mainWindow;
-        private Size lastWindowSize;
+
+        public static ConsoleColor ThemeColor { get; set; } = ConsoleColor.DarkRed;
 
         public Application(Window mainWindow) : base(
             System.Console.WindowWidth, System.Console.WindowHeight)
@@ -16,6 +17,9 @@ namespace Shinobytes.Console.Forms
             this.mainWindow.IsMainWindow = true;
             this.mainWindow.Visible = true;
             this.mainWindow.Size = new Size(Graphics.Width, Graphics.Height);
+            this.mainWindow.Focus();
+
+            System.Console.BackgroundColor = this.mainWindow.BackgroundColor;
         }
 
         protected override void Draw(AppTime appTime)
@@ -29,7 +33,6 @@ namespace Shinobytes.Console.Forms
                 Graphics.Resize(mainWindow.Size.Width, mainWindow.Size.Height);
                 System.Console.CursorVisible = false;
             }
-            lastWindowSize = mainWindow.Size;
 
             WindowManager.Draw(Graphics, appTime);
         }

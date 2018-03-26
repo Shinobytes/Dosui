@@ -20,26 +20,38 @@ namespace Shinobytes.Console.Forms
             Text = text;
         }
 
-        public void Focus()
+        public virtual void Focus()
         {
-            HasFocus = true;
-            HasKeyboardFocus = true;
+            InputManager.Focus(this);
         }
 
-        public void Blur()
+        public virtual void Blur()
         {
-            HasFocus = false;
-            HasKeyboardFocus = false;
+            InputManager.Blur(this);
         }
+
         private bool eventBlocked = false;
+        private ConsoleColor backgroundColor = ConsoleColor.Black;
+
+        public int TabIndex { get; set; }
+
         public bool Visible { get; set; } = true;
-        public bool Enabled { get; set; } = true;
+        public bool IsEnabled { get; set; } = true;
 
-        public bool HasFocus { get; private set; } = true;
-        public bool HasKeyboardFocus { get; private set; } = true; // todo: do not have Focus and Keyboard Focus on as standard.
+        public bool HasFocus { get; internal set; } = false;
 
-        public bool TransparentBackground { get; set; }
-        public ConsoleColor BackgroundColor { get; set; } = ConsoleColor.Black;
+        public bool TransparentBackground { get; set; } = true;
+
+        public ConsoleColor BackgroundColor
+        {
+            get => backgroundColor;
+            set
+            {
+                backgroundColor = value;
+                TransparentBackground = false;
+            }
+        }
+
         public ConsoleColor ForegroundColor { get; set; } = ConsoleColor.White;
         public ConsoleColor DisabledForegroundColor { get; set; } = ConsoleColor.DarkGray;
 
@@ -48,6 +60,8 @@ namespace Shinobytes.Console.Forms
 
         public string Text { get; set; }
         public Control Parent { get; internal set; }
+        public bool ShortcutListener { get; set; } = false;
+        public bool CanFocus { get; set; } = true;
 
 
         public abstract void Draw(IGraphics graphics, AppTime appTime);

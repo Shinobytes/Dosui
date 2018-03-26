@@ -8,9 +8,10 @@ namespace Shinobytes.Console.Forms
     {
         public TextBlock()
         {
+            this.CanFocus = false;
         }
 
-        public TextBlock(string text)
+        public TextBlock(string text) : this()
         {
             this.Text = text;
         }

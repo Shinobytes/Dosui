@@ -5,13 +5,14 @@ using Shinobytes.Console.Forms.Graphics;
 
 namespace Shinobytes.Console.Forms
 {
-    public class MenuStrip : Control
+    public class MenuStrip : ContainerControl
     {
-        public ControlCollection<MenuItem> Items { get; }
+        //public ControlCollection<MenuItem> Items { get; }
 
         public MenuStrip()
         {
-            Items = new ControlCollection<MenuItem>(this);
+            this.ShortcutListener = true;
+            //Items = new ControlCollection<MenuItem>(this);
             ForegroundColor = ConsoleColor.Black;
             BackgroundColor = ConsoleColor.Gray;
         }
@@ -22,9 +23,9 @@ namespace Shinobytes.Console.Forms
             graphics.DrawLine(Position.X, Position.Y, Parent.Size.Width, Position.Y, BackgroundColor);
 
             var totalWidth = 0;
-            for (var index = 0; index < Items.Count; index++)
+            for (var index = 0; index < Controls.Count; index++)
             {
-                var menu = Items[index];
+                var menu = Controls[index];
 
                 // a menu item size is based on the text content
                 menu.Position = new Point(Position.X + 1 + totalWidth, Position.Y);
@@ -40,8 +41,18 @@ namespace Shinobytes.Console.Forms
 
         public override bool OnKeyDown(KeyInfo key)
         {
-            this.Items.Where(x => x.HasKeyboardFocus && !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
+            this.Controls.Where(x => !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
             return true;
+        }
+
+        public override void Focus()
+        {
+            //base.Focus();
+            var firstItem = this.Controls.FirstOrDefault();
+            if (firstItem != null)
+            {
+                firstItem.Focus();
+            }
         }
     }
 }

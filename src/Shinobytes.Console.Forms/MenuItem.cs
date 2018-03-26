@@ -9,6 +9,7 @@ namespace Shinobytes.Console.Forms
     {
         public MenuItem()
         {
+            this.ShortcutListener = true;
             SubItems = new ControlCollection<MenuItem>(this);
         }
 
@@ -22,8 +23,6 @@ namespace Shinobytes.Console.Forms
 
         public event EventHandler Invoke;
 
-        public ConsoleColor ThemeColor { get; set; } = ConsoleColor.DarkRed;
-
         public ControlCollection<MenuItem> SubItems { get; }
 
         public ConsoleColor BorderColor { get; set; } = ConsoleColor.DarkGray;
@@ -35,6 +34,21 @@ namespace Shinobytes.Console.Forms
         public bool IsMenuOpen { get; set; }
 
         public bool IsSelected { get; set; }
+
+
+        public override void Focus()
+        {
+            base.Focus();
+            this.IsSelected = true;
+            this.IsMenuOpen = true;
+        }
+
+        public override void Blur()
+        {
+            base.Blur();
+            this.IsMenuOpen = false;
+            this.IsSelected = false;
+        }
 
         public override void Draw(IGraphics graphics, AppTime appTime)
         {
@@ -49,13 +63,13 @@ namespace Shinobytes.Console.Forms
             {
                 foreach (var op in ops)
                 {
-                    graphics.DrawString(op.Text, Position.X + totalWidth, Position.Y, ConsoleColor.White, this.ThemeColor);
+                    graphics.DrawString(op.Text, Position.X + totalWidth, Position.Y, ConsoleColor.White, Application.ThemeColor);
                     totalWidth += op.Text.Length;
                 }
 
                 var remaining = this.Size.Width - 1 - totalWidth;
                 if (remaining > 0)
-                    graphics.DrawString(new string(' ', remaining), Position.X + totalWidth, Position.Y, ConsoleColor.White, this.ThemeColor);
+                    graphics.DrawString(new string(' ', remaining), Position.X + totalWidth, Position.Y, ConsoleColor.White, Application.ThemeColor);
             }
             else
             {
@@ -63,7 +77,7 @@ namespace Shinobytes.Console.Forms
                 {
                     graphics.DrawString(
                         op.Text, Position.X + totalWidth, Position.Y,
-                        this.Enabled ? op.ForegroundColor : this.DisabledForegroundColor, op.BackgroundColor);
+                        this.IsEnabled ? op.ForegroundColor : this.DisabledForegroundColor, op.BackgroundColor);
                     totalWidth += op.Text.Length;
                 }
             }
@@ -113,7 +127,7 @@ namespace Shinobytes.Console.Forms
                 y == 0
                     ? new[] { new DrawStringOperation(x, this.ForegroundColor, this.BackgroundColor) }
                     : new[] {
-                        new DrawStringOperation(x[0].ToString(), this.ThemeColor, this.BackgroundColor),
+                        new DrawStringOperation(x[0].ToString(), Application.ThemeColor, this.BackgroundColor),
                         new DrawStringOperation(x.Substring(1), this.ForegroundColor, this.BackgroundColor) })
                         .SelectMany(x => x)
                         .ToList();
@@ -183,10 +197,10 @@ namespace Shinobytes.Console.Forms
             {
                 if (Parent is MenuStrip menu)
                 {
-                    var index = menu.Items.IndexOf(this);
+                    var index = menu.Controls.IndexOf(this);
                     if (index > 0)
                     {
-                        menu.Items[index - 1].ShowMenu();
+                        menu.ControlAt<MenuItem>(index - 1).ShowMenu();
                         this.HideMenu();
                     }
                 }
@@ -199,11 +213,11 @@ namespace Shinobytes.Console.Forms
             {
                 if (Parent is MenuStrip menu)
                 {
-                    var index = menu.Items.IndexOf(this);
-                    if (index + 1 < menu.Items.Count)
+                    var index = menu.Controls.IndexOf(this);
+                    if (index + 1 < menu.Controls.Count)
                     {
-                        menu.Items[index + 1].ShowMenu();
-                        menu.Items[index + 1].StopNextEvent();
+                        menu.ControlAt<MenuItem>(index + 1).ShowMenu();
+                        menu.Controls[index + 1].StopNextEvent();
                         this.HideMenu();
                     }
                 }
@@ -227,7 +241,7 @@ namespace Shinobytes.Console.Forms
                             {
                                 this.SubItems[selectedIndex].IsSelected = false;
                             }
-                            if (this.SubItems[selectedIndex + index] is SeparatorMenuItem || !this.SubItems[selectedIndex + index].Enabled)
+                            if (this.SubItems[selectedIndex + index] is SeparatorMenuItem || !this.SubItems[selectedIndex + index].IsEnabled)
                             {
                                 index++;
                                 continue;
@@ -254,7 +268,7 @@ namespace Shinobytes.Console.Forms
                         while (selectedIndex - index >= 0)
                         {
                             this.SubItems[selectedIndex].IsSelected = false;
-                            if (this.SubItems[selectedIndex - index] is SeparatorMenuItem || !this.SubItems[selectedIndex - index].Enabled)
+                            if (this.SubItems[selectedIndex - index] is SeparatorMenuItem || !this.SubItems[selectedIndex - index].IsEnabled)
                             {
                                 index++;
                                 continue;
@@ -305,7 +319,7 @@ namespace Shinobytes.Console.Forms
 
                     if (char.ToLower(hotkeyChar.Text[0]) == char.ToLower(key.KeyChar))
                     {
-                        if (this.Parent is MenuStrip strip) strip.Items.ForEach(x => x.HideMenu());
+                        if (this.Parent is MenuStrip strip) strip.Controls.OfType<MenuItem>().ForEach(x => x.HideMenu());
                         else if (this.Parent is MenuItem mi) mi.SubItems.ForEach(x => x.HideMenu());
                         this.ShowMenu();
                         return false; // stops other items from receiving keydown events

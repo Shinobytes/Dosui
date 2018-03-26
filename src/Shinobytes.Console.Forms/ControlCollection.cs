@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Shinobytes.Console.Forms
 {
@@ -27,11 +28,17 @@ namespace Shinobytes.Console.Forms
         public void Add(T item)
         {
             item.Parent = parent;
-            // TODO: this is bad, what if user wants black background? We better add a "transparent" background.
-            if (item.BackgroundColor == ConsoleColor.Black)
+
+            if (item.TransparentBackground)
             {
                 item.BackgroundColor = parent.BackgroundColor;
             }
+
+            if (item.TabIndex <= 0 && this.list.Count > 0)
+            {
+                item.TabIndex = this.list.Max(x => x.TabIndex) + 1;
+            }
+
             list.Add(item);
         }
 
@@ -91,5 +98,12 @@ namespace Shinobytes.Console.Forms
         public ControlCollection(ContainerControl parent) : base(parent)
         {
         }
+
+
+        public T ElementAt<T>(int index) where T : Control
+        {
+            return (T)this[index];
+        }
+
     }
 }

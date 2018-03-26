@@ -12,6 +12,18 @@ namespace SampleConsoleApp
         {
             this.Text = "Test";
 
+            var toggle = new ToggleButton();
+            toggle.Position = new Point(1, 2);
+            toggle.Text = "Toggle me by pressing Enter";
+            toggle.Focus();
+            this.Controls.Add(toggle);
+
+            var toggle2 = new ToggleButton();
+            toggle2.Position = new Point(1, 4);
+            toggle2.Text = "Another toggle";
+            
+            this.Controls.Add(toggle2);
+
             var label = new TextBlock(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
                 "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
@@ -37,7 +49,8 @@ namespace SampleConsoleApp
                 "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
                 "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
                 "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-                new Point(1, 1));
+                new Point(1, 6));
+
 
             this.Controls.Add(label);
 
@@ -59,7 +72,7 @@ namespace SampleConsoleApp
                 };
 
                 fileMenu.SubItems.Add(mi);
-                menuStrip.Items.Add(fileMenu);
+                menuStrip.Controls.Add(fileMenu);
             }
 
             var editMenu = new MenuItem("&Edit");
@@ -71,24 +84,24 @@ namespace SampleConsoleApp
                 editMenu.SubItems.Add(new MenuItem("Copy"));
                 editMenu.SubItems.Add(new MenuItem("Paste")
                 {
-                    Enabled = false
+                    IsEnabled = false
                 });
                 editMenu.SubItems.Add(new MenuItem("Delete"));
-                menuStrip.Items.Add(editMenu);
+                menuStrip.Controls.Add(editMenu);
             }
 
             var viewMenu = new MenuItem("&View");
             {
                 viewMenu.SubItems.Add(new MenuItem("&Code"));
                 viewMenu.SubItems.Add(new MenuItem("&Magic"));
-                menuStrip.Items.Add(viewMenu);
+                menuStrip.Controls.Add(viewMenu);
             }
 
             var toolsMenu = new MenuItem("&Tools");
             {
                 toolsMenu.SubItems.Add(new MenuItem("&Customize..."));
                 toolsMenu.SubItems.Add(new MenuItem("&Options"));
-                menuStrip.Items.Add(toolsMenu);
+                menuStrip.Controls.Add(toolsMenu);
             }
 
             var helpMenu = new MenuItem("&Help");
@@ -128,7 +141,7 @@ namespace SampleConsoleApp
                 helpMenu.SubItems.Add(about);
             }
 
-            menuStrip.Items.Add(helpMenu);
+            menuStrip.Controls.Add(helpMenu);
             this.Controls.Add(menuStrip);
         }
 

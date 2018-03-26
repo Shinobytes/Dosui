@@ -5,6 +5,7 @@ namespace Shinobytes.Console.Forms
 {
     public class Window : ContainerControl
     {
+        private bool closed;
         public bool IsMainWindow { get; internal set; }
         public DialogResult DialogResult { get; set; }
         public ConsoleColor CaptionColor { get; set; } = ConsoleColor.Gray;
@@ -101,13 +102,18 @@ namespace Shinobytes.Console.Forms
 
         public void Show()
         {
+            if (closed)
+                throw new Exception(
+                    "Window has already been closed and cannot be opened again. Use Hide() if you intend to temporarily hide the window from the user.");
+
             Visible = true;
         }
 
         public void Close()
         {
             Visible = false;
-            Enabled = false;
+            IsEnabled = false;
+            closed = true;
             WindowManager.Unregister(this);
         }
 
