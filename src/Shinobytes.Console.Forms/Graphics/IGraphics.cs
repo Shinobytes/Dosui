@@ -12,7 +12,7 @@ namespace Shinobytes.Console.Forms.Graphics
         void Clear(int x, int y, int w, int h, ConsoleColor color);
         char GetPixelChar(int x, int y);
         void SetPixelChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background);
-        void SetPixelAsciiChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background);        
+        void SetPixelAsciiChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background);
         void SetPixel(int x, int y, ConsoleColor color);
         void SetPixels(ConsoleColor[] pixels);
         void DrawLine(int x1, int y1, int x2, int y2, ConsoleColor color);
@@ -24,6 +24,9 @@ namespace Shinobytes.Console.Forms.Graphics
         void DrawRect(int x, int y, int width, int height, ConsoleColor backgroundColor);
         void DrawShadowRect(int x, int y, int width, int height, ConsoleColor backgroundColor);
         void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderColor, ConsoleColor backgroundColor);
+
+        ConsoleColor GetForeground(int x, int y);
+        ConsoleColor GetBackground(int x, int y);
     }
 
     public struct BorderThickness
@@ -39,5 +42,7 @@ namespace Shinobytes.Console.Forms.Graphics
             this.Right = right;
             this.Bottom = bottom;
         }
+
+        public int Size => Top + Left + Right + Bottom;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using Shinobytes.Console.Forms.Graphics;
 
@@ -23,6 +24,19 @@ namespace Shinobytes.Console.Forms
             }
         }
 
+        public override bool ShortcutListener
+        {
+            get
+            {
+                if (base.ShortcutListener)
+                {
+                    return true;
+                }
+
+                return this.Controls.Count > 0 && this.Controls.Any(x => x.ShortcutListener);
+            }
+        }
+
         public T ControlAt<T>(int index) where T : Control
         {
             return Controls.ElementAt<T>(index);
@@ -38,15 +52,57 @@ namespace Shinobytes.Console.Forms
             Controls.Where(x => x.IsEnabled).ForEach(x => x.Update(appTime));
         }
 
+        public override bool Navigation(Control sender, ConsoleKey key)
+        {
+            int Distance(Point a, Point b) => (a.X - b.X) + (a.Y - b.Y);
+            if (this.Controls.Count == 0) return true;
+            var controls = this.Controls
+                .Where(x => x != sender && x.CanFocus)
+                .OrderBy(x => Distance(x.Position, sender.Position))
+                .ToArray();
+
+            if (controls.Length == 0) return true;
+            var dir = -1;
+            Control target = null;
+            switch (key)
+            {
+                case ConsoleKey.UpArrow:
+                    target = controls.OrderByDescending(x => x.Position.Y).FirstOrDefault(x => x.Position.Y < sender.Position.Y);
+                    break;
+                case ConsoleKey.DownArrow:
+                    target = controls.OrderBy(x => x.Position.Y).FirstOrDefault(x => x.Position.Y > sender.Position.Y);
+                    dir = 1;
+                    break;
+                case ConsoleKey.LeftArrow:
+                    target = controls.OrderByDescending(x => x.Position.X).FirstOrDefault(x => x.Position.X < sender.Position.X);
+                    break;
+                case ConsoleKey.RightArrow:
+                    target = controls.OrderBy(x => x.Position.X).FirstOrDefault(x => x.Position.X > sender.Position.X);
+                    dir = 1;
+                    break;
+            }
+
+            if (target == null && key != ConsoleKey.DownArrow && key != ConsoleKey.RightArrow) // down or right arrow should never go back up.
+            {
+                target = controls
+                    .FirstOrDefault(x =>
+                        dir > 0 ? x.TabIndex > sender.TabIndex : x.TabIndex < sender.TabIndex);
+            }
+
+            if (target != null)
+            {
+                target.Focus();
+                return false;
+            }
+            return true;
+        }
+
         public override bool OnKeyDown(KeyInfo key)
         {
             // input movement
-
-
             if (key.Key == ConsoleKey.Tab)
             {
                 // change focus to next item
-                var ac = InputManager.ActiveControl;
                 var activeControl = ActiveControl;
                 var nextItem = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus && (activeControl == null || x.TabIndex > activeControl.TabIndex));
                 if (nextItem != null)
@@ -57,9 +113,6 @@ namespace Shinobytes.Console.Forms
             }
             else
             {
-
-
-
                 var activeControl = this.ActiveControl;
                 if (activeControl != null)
                 {
@@ -76,22 +129,14 @@ namespace Shinobytes.Console.Forms
                             }
                         }
 
-
                         return activeControl.OnKeyDown(key);
                     }
                 }
-
 
                 Controls.Where(x => x.ShortcutListener || x.HasFocus && !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
             }
 
             return true;
-        }
-
-        private static bool IsNavigationKey(ConsoleKey key)
-        {
-            return key == ConsoleKey.Enter || key == ConsoleKey.Escape || key == ConsoleKey.LeftArrow ||
-                   key == ConsoleKey.UpArrow || key == ConsoleKey.RightArrow || key == ConsoleKey.DownArrow;
         }
     }
 }

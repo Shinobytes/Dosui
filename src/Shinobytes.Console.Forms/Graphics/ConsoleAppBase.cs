@@ -14,7 +14,8 @@ namespace Shinobytes.Console.Forms.Graphics
 
         private readonly object stateLock = new object();
         private readonly ConsoleGraphics graphics;
-        private readonly SafeFileHandle consoleHandle;
+        //private readonly SafeFileHandle consoleHandle;
+        private readonly IntPtr consoleHandle;
 
         private bool interrupt;
         private bool enabled;
@@ -42,7 +43,8 @@ namespace Shinobytes.Console.Forms.Graphics
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool WriteConsoleOutput(
-            SafeFileHandle hConsoleOutput,
+            // SafeFileHandle hConsoleOutput,
+            IntPtr hConsoleOutput,
             CharInfo[] lpBuffer,
             Coord dwBufferSize,
             Coord dwBufferCoord,
@@ -69,6 +71,21 @@ namespace Shinobytes.Console.Forms.Graphics
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool SetConsoleOutputCP(uint wCodePageID);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool SetConsoleMode(IntPtr hConsoleHandle, int mode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GetConsoleMode(IntPtr handle, out int mode);
+
+        [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
+        private static extern int WindowsCreateString([MarshalAs(UnmanagedType.LPWStr)]string sourceString, int stringLength, out IntPtr hstring);
+
+        [DllImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
+        private static extern int WindowsDeleteString(IntPtr hstring);
+
+        [DllImport("api-ms-win-core-winrt-l1-1-0.dll")]
+        private static extern int RoGetActivationFactory(IntPtr className, ref Guid guid, out IntPtr instance);
+
         private CharInfo[] previousScreenBuffer;
 
         protected ConsoleAppBase(int width, int height)
@@ -83,16 +100,27 @@ namespace Shinobytes.Console.Forms.Graphics
             System.Console.SetBufferSize(graphics.Width, graphics.Height);
             System.Console.OutputEncoding = System.Text.Encoding.Unicode;
 
-            consoleHandle = CreateFile("CONOUT$", GENERIC_WRITE, 2, NULL, FileMode.Open, 0, NULL);
-            if (consoleHandle.IsInvalid)
+            this.graphics = graphics;
+
+            this.consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+
+            if (HasAnniversaryUpdate())
             {
-                throw new Exception("This program is not supported by your device. Unfortunately we are not able to properly access the console stream in a fashion we would need.");
+                if (GetConsoleMode(consoleHandle, out var mode))
+                {
+                    if (SetConsoleMode(consoleHandle, mode | 0x4))
+                    {
+                        this.ExtendedColorMode = true;
+                    }
+                }
             }
 
-            this.graphics = graphics;
             new Thread(RenderLoop).Start();
             if (startEmmediately) Run();
         }
+
+        public bool ExtendedColorMode { get; }
 
         public ConsoleGraphics Graphics => graphics;
 
@@ -141,7 +169,7 @@ namespace Shinobytes.Console.Forms.Graphics
             var buffer = GetBufferDiff(screenBuffer, out var rect);
             if (buffer != null)
             {
-                WriteConsoleOutput(consoleHandle, buffer,
+                WriteConsoleOutput(this.consoleHandle, buffer,
                     new Coord { X = rect.Right, Y = rect.Bottom },
                     new Coord { X = rect.Left, Y = rect.Top },
                     ref rect);
@@ -261,11 +289,8 @@ namespace Shinobytes.Console.Forms.Graphics
 
         private void UpdateConsoleColorPalette()
         {
-            // to add support for multiple palettes we would need to set the palette between draws, but it would also require us to draw one sprite at a time
-            // which will reduce the performance alot
             var palette = Graphics.Palette;
             if (palette == null || lastPalette == palette) return;
-            var consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
             var info = new ConsoleScreenBufferInfoEx();
             info.cbSize = Marshal.SizeOf(info);
             if (!GetConsoleScreenBufferInfoEx(consoleHandle, ref info))
@@ -327,6 +352,44 @@ namespace Shinobytes.Console.Forms.Graphics
             if (isDisposed) return;
             Stop();
             isDisposed = true;
+        }
+
+        private static bool HasAnniversaryUpdate()
+        {
+            const string ClassName = "Windows.ApplicationModel.AppExtensions.AppExtensionCatalog";
+            var stringHandle = IntPtr.Zero;
+            try
+            {
+                if (WindowsCreateString(ClassName, ClassName.Length, out stringHandle) != 0)
+                {
+                    return false;
+                }
+
+                var appExtensionCatalogStaticsId =
+                    new Guid(1010198154, 24344, 20235, 156, 229, 202, 182, 29, 25, 111, 17);
+
+                if (RoGetActivationFactory(
+                        stringHandle,
+                        ref appExtensionCatalogStaticsId,
+                        out var appExtensionCatalogStatics) != 0)
+                {
+                    return false;
+                }
+
+                if (appExtensionCatalogStatics != IntPtr.Zero)
+                {
+                    Marshal.Release(appExtensionCatalogStatics);
+                    return true;
+                }
+            }
+            finally
+            {
+                if (IntPtr.Zero != stringHandle)
+                {
+                    WindowsDeleteString(stringHandle);
+                }
+            }
+            return false;
         }
     }
 }

@@ -11,7 +11,6 @@ namespace Shinobytes.Console.Forms
 
         public MenuStrip()
         {
-            this.ShortcutListener = true;
             //Items = new ControlCollection<MenuItem>(this);
             ForegroundColor = ConsoleColor.Black;
             BackgroundColor = ConsoleColor.Gray;

@@ -9,7 +9,6 @@ namespace Shinobytes.Console.Forms
     {
         public MenuItem()
         {
-            this.ShortcutListener = true;
             SubItems = new ControlCollection<MenuItem>(this);
         }
 
@@ -18,7 +17,6 @@ namespace Shinobytes.Console.Forms
             Text = text;
             ForegroundColor = ConsoleColor.Black;
             BackgroundColor = ConsoleColor.Gray;
-
         }
 
         public event EventHandler Invoke;
@@ -54,7 +52,10 @@ namespace Shinobytes.Console.Forms
         {
             // todo: draw individual char, check for & and have a different color for the char thereafter
             // ex: &File, should emphasize on (F)
-            var ops = ParseDrawOperations($" {this.Text} ");
+            var ops = this.TextRenderOperations;
+            //ops.Insert(0, new DrawStringOperation(" ", this.ForegroundColor, this.BackgroundColor));
+            //ops.Add(new DrawStringOperation(" ", this.ForegroundColor, this.BackgroundColor));
+
             var totalWidth = 0;
 
             //graphics.DrawLine(Position.X, Position.Y, Position.X + Size.Width - 1, Position.Y, this.BackgroundColor);
@@ -77,7 +78,7 @@ namespace Shinobytes.Console.Forms
                 {
                     graphics.DrawString(
                         op.Text, Position.X + totalWidth, Position.Y,
-                        this.IsEnabled ? op.ForegroundColor : this.DisabledForegroundColor, op.BackgroundColor);
+                        this.IsEnabled ? op.ForegroundColor : this.DisabledForegroundColor, this.BackgroundColor);
                     totalWidth += op.Text.Length;
                 }
             }
@@ -116,53 +117,7 @@ namespace Shinobytes.Console.Forms
         }
 
 
-        private IReadOnlyList<DrawStringOperation> ParseDrawOperations(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return new List<DrawStringOperation>();
-            }
-
-            return text.Split('&').Select((x, y) =>
-                y == 0
-                    ? new[] { new DrawStringOperation(x, this.ForegroundColor, this.BackgroundColor) }
-                    : new[] {
-                        new DrawStringOperation(x[0].ToString(), Application.ThemeColor, this.BackgroundColor),
-                        new DrawStringOperation(x.Substring(1), this.ForegroundColor, this.BackgroundColor) })
-                        .SelectMany(x => x)
-                        .ToList();
-
-            //// just a super simple parser/tokenizer to handle the & op, faster though
-            //var list = new List<DrawStringOperation>();
-            //var index = 0;
-            //do
-            //{
-            //    var str = "";
-            //    var token = text[index];
-            //    switch (token)
-            //    {
-            //        case '&':
-            //            list.Add(new DrawStringOperation(text[++index].ToString(), ThemeColor, this.BackgroundColor));
-            //            break;
-            //        default:
-            //            str += text[index];
-            //            if (index + 1 < text.Length)
-            //            {
-            //                var next = text[index + 1];
-            //                while (index + 1 < text.Length)
-            //                {
-            //                    if (text[index + 1] == '&') break;
-            //                    next = text[++index];
-            //                    str += next;
-            //                }
-            //            }
-            //            list.Add(new DrawStringOperation(str, this.ForegroundColor, this.BackgroundColor));
-            //            break;
-            //    }
-            //    ++index;
-            //} while (index < text.Length);
-            //return list;
-        }
+        public override string RenderText => $" {this.Text} ";
 
         public override void Update(AppTime appTime)
         {
@@ -170,10 +125,7 @@ namespace Shinobytes.Console.Forms
 
         public override bool OnKeyDown(KeyInfo key)
         {
-            // dont do this unless we update the text
-            // but for testing purposes, it should be OKAY
-
-            if (key.Key == ConsoleKey.Enter)
+            if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
             {
                 if (this.IsSelected)
                 {
@@ -340,7 +292,7 @@ namespace Shinobytes.Console.Forms
 
         private void HideMenu()
         {
-            //this.Blur();
+            this.Blur();
             this.IsSelected = false;
             this.IsMenuOpen = false;
             this.SubItems.ForEach(x => x.IsSelected = false);

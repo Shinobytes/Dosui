@@ -4,8 +4,24 @@ using System.Runtime.CompilerServices;
 
 namespace Shinobytes.Console.Forms.Graphics
 {
+    public struct ConsolePixel
+    {
+        public ConsolePixel(char c, ConsoleColor background, ConsoleColor foreground)
+        {
+            Char = c;
+            Background = background;
+            Foreground = foreground;
+        }
+
+        public char Char { get; set; }
+        public ConsoleColor Background { get; set; }
+        public ConsoleColor Foreground { get; set; }
+    }
+    
     public class ConsoleGraphics : IGraphics
     {
+        private ConsolePixel[] pixels;
+
         public ConsoleGraphics(int width, int height)
         {
             Resize(width, height);
@@ -15,14 +31,30 @@ namespace Shinobytes.Console.Forms.Graphics
         {
             Width = newWidth;
             Height = newHeight;
-            Buffer = new CharInfo[newWidth * newHeight];
+            pixels = new ConsolePixel[newWidth * newHeight];
         }
 
         public int Width { get; private set; }
 
         public int Height { get; private set; }
 
-        public CharInfo[] Buffer { get; private set; }
+        public CharInfo[] Buffer
+        {
+            get
+            {
+                CharInfo[] buffer = new CharInfo[pixels.Length];
+                for (var i = 0; i < pixels.Length; i++)
+                {
+                    buffer[i] = new CharInfo
+                    {
+                        UnicodeChar = pixels[i].Char,
+                        Attributes = (short)((byte)pixels[i].Foreground | ((byte)pixels[i].Background << 4))
+                    };
+                }
+
+                return buffer;
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the active color palette used for drawing the next frame. Only one palette can be active per frame and can max use 16 colors.
@@ -31,10 +63,12 @@ namespace Shinobytes.Console.Forms.Graphics
 
         public void Clear(ConsoleColor color = ConsoleColor.Black)
         {
-            for (var i = 0; i < Buffer.Length; i++)
+            for (var i = 0; i < pixels.Length; i++)
             {
-                Buffer[i].UnicodeChar = ' '; // █
-                Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));// (byte)ConsoleColor.Red | (byte)ConsoleColor.Green << 4;
+                pixels[i].Char = ' '; // █
+                pixels[i].Background = color;
+                pixels[i].Foreground = color;
+                //pixels[i].Attributes = (short)((byte)color | ((byte)color << 4));// (byte)ConsoleColor.Red | (byte)ConsoleColor.Green << 4;
             }
         }
 
@@ -52,32 +86,44 @@ namespace Shinobytes.Console.Forms.Graphics
         public char GetPixelChar(int x, int y)
         {
             var i = y * Width + x;
-            if (i >= Buffer.Length) return ' ';
-            return Buffer[i].UnicodeChar;
+            if (i >= pixels.Length) return ' ';
+            return pixels[i].Char;
+            //if (i >= Buffer.Length) return ' ';            
+            //return Buffer[i].UnicodeChar;
         }
 
         public void SetPixel(int x, int y, ConsoleColor color)
         {
             var i = y * Width + x;
-            if (i >= Buffer.Length) return;
-            Buffer[i].UnicodeChar = ' '; // █
-            Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
+            if (i >= pixels.Length) return;
+            pixels[i].Char = ' '; // █
+            pixels[i].Background = color;
+            pixels[i].Foreground = color;
+            //Buffer[i].UnicodeChar = ' '; // █
+            //Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
         }
 
         public void SetPixelChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
             var i = y * Width + x;
-            if (i >= Buffer.Length || c == '\0') return;
-            Buffer[i].UnicodeChar = c;
-            Buffer[i].Attributes = (short)((byte)foreground | ((byte)background << 4));
+            if (i >= pixels.Length || c == '\0') return;
+            pixels[i].Char = c;
+            pixels[i].Background = background;
+            pixels[i].Foreground = foreground;
+            //Buffer[i].UnicodeChar = c;            
+            //Buffer[i].Attributes = (short)((byte)foreground | ((byte)background << 4));
         }
 
         public void SetPixelAsciiChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
             var i = y * Width + x;
-            if (i >= Buffer.Length || c == '\0') return;
-            Buffer[i].bAsciiChar = (byte)c;
-            Buffer[i].Attributes = (short)((byte)foreground | ((byte)background << 4));
+            if (i >= pixels.Length || c == '\0') return;
+            pixels[i].Char = c;
+            pixels[i].Background = background;
+            pixels[i].Foreground = foreground;
+
+            //Buffer[i].bAsciiChar = (byte)c;
+            //Buffer[i].Attributes = (short)((byte)foreground | ((byte)background << 4));
         }
 
         public void SetPixels(ConsoleColor[] pixels)
@@ -88,7 +134,9 @@ namespace Shinobytes.Console.Forms.Graphics
 
             for (var i = 0; i < Buffer.Length; i++)
             {
-                Buffer[i].Attributes = (short)((byte)pixels[i] | ((byte)pixels[i] << 4));
+                this.pixels[i].Background = pixels[i];
+                this.pixels[i].Foreground = pixels[i];
+                //Buffer[i].Attributes = (short)((byte)pixels[i] | ((byte)pixels[i] << 4));
             }
         }
 
@@ -143,8 +191,11 @@ namespace Shinobytes.Console.Forms.Graphics
                     if (pixels[spi] == null) continue;
                     var color = pixels[spi].Value;
                     var i = (y + y1) * Width + (x + x1);
-                    if (i >= Buffer.Length) return;
-                    Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
+                    if (i >= this.pixels.Length) return;
+
+                    this.pixels[i].Background = color;
+                    this.pixels[i].Foreground = color;
+                    //Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
                 }
             }
         }
@@ -180,19 +231,17 @@ namespace Shinobytes.Console.Forms.Graphics
 
             for (var i = x + 1; i < (x + width - 1); i++)
             {
-                var sampledChar = this.GetPixelChar(x + i, y + height - 1);
-                //  y + height + 3
+                var sampledChar = this.GetPixelChar(i, y + height - 1);
                 SetPixelChar(sampledChar, i, y + height - 1, ConsoleColor.DarkGray, ConsoleColor.Black);
             }
         }
-
-
+        
         public void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderColor, ConsoleColor backgroundColor)
         {
-            var topBorder = GetBorderChars(thickness.Top);
-            var leftBorder = GetBorderChars(thickness.Left);
-            var rightBorder = GetBorderChars(thickness.Right);
-            var botBorder = GetBorderChars(thickness.Bottom);
+            var topBorder = AsciiCodes.GetBorderChars(thickness.Top);
+            var leftBorder = AsciiCodes.GetBorderChars(thickness.Left);
+            var rightBorder = AsciiCodes.GetBorderChars(thickness.Right);
+            var botBorder = AsciiCodes.GetBorderChars(thickness.Bottom);
 
             // draw vertical lines
             for (var i = 0; i < height - 1; i++)
@@ -217,23 +266,22 @@ namespace Shinobytes.Console.Forms.Graphics
             SetPixelChar(botBorder[5], x + width, y + height, borderColor, backgroundColor);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static char[] GetBorderChars(int thickness)
+        public ConsoleColor GetForeground(int x, int y)
         {
-            if (thickness == 0)
-            {
-                return new char[6];
-            }
+            var index = y * Width + x;
+            if (index < 0 || index >= this.pixels.Length)
+                return ConsoleColor.Black;
 
-            var isSingle = thickness == 1;
-            return new[] {
-                isSingle ? AsciiCodes.BorderSingle_TopLeft : AsciiCodes.BorderDouble_TopLeft,
-                isSingle ? AsciiCodes.BorderSingle_TopRight : AsciiCodes.BorderDouble_TopRight,
-                isSingle ? AsciiCodes.BorderSingle_Horizontal : AsciiCodes.BorderDouble_Horizontal,
-                isSingle ? AsciiCodes.BorderSingle_Vertical : AsciiCodes.BorderDouble_Vertical,
-                isSingle ? AsciiCodes.BorderSingle_BottomLeft : AsciiCodes.BorderDouble_BottomLeft,
-                isSingle ? AsciiCodes.BorderSingle_BottomRight : AsciiCodes.BorderDouble_BottomRight
-            };
+            return pixels[index].Foreground;
+        }
+
+        public ConsoleColor GetBackground(int x, int y)
+        {
+            var index = y * Width + x;
+            if (index < 0 || index >= this.pixels.Length)
+                return ConsoleColor.Black;
+
+            return pixels[index].Background;
         }
     }
 }

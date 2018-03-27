@@ -1,4 +1,6 @@
-﻿namespace Shinobytes.Console.Forms
+﻿using System.Runtime.CompilerServices;
+
+namespace Shinobytes.Console.Forms
 {
     public static class AsciiCodes
     {
@@ -44,11 +46,31 @@
 
         public static string CheckBox_Checked => $"[{GetAsciiChar(254)}]";
         public static string CheckBox_Unchecked => "[ ]";
-        
+
         public static string RadioButton_Checked => $"({GetAsciiChar(254)})";
         public static string RadioButton_Unchecked => "( )";
 
-        public static char ProgressBar_Background => GetAsciiChar(176);
-        public static char ProgressBar_Foreground => GetAsciiChar(178);
+        public static char ProgressBar_Background => ' ';//GetAsciiChar(219);
+        public static char ProgressBar_Foreground => ' ';//GetAsciiChar(219);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static char[] GetBorderChars(int thickness)
+        {
+            if (thickness == 0)
+            {
+                return new char[6];
+            }
+
+            var isSingle = thickness == 1;
+            return new[] {
+                isSingle ? AsciiCodes.BorderSingle_TopLeft : AsciiCodes.BorderDouble_TopLeft,
+                isSingle ? AsciiCodes.BorderSingle_TopRight : AsciiCodes.BorderDouble_TopRight,
+                isSingle ? AsciiCodes.BorderSingle_Horizontal : AsciiCodes.BorderDouble_Horizontal,
+                isSingle ? AsciiCodes.BorderSingle_Vertical : AsciiCodes.BorderDouble_Vertical,
+                isSingle ? AsciiCodes.BorderSingle_BottomLeft : AsciiCodes.BorderDouble_BottomLeft,
+                isSingle ? AsciiCodes.BorderSingle_BottomRight : AsciiCodes.BorderDouble_BottomRight
+            };
+        }
     }
 }

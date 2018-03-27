@@ -99,6 +99,16 @@ namespace Shinobytes.Console.Forms.Graphics
             this.graphics.DrawBorder(thickness, xOffset + x, yOffset + y, width, height, borderColor, backgroundColor);
         }
 
+        public ConsoleColor GetForeground(int x, int y)
+        {
+            return this.graphics.GetForeground(x + this.xOffset, y + yOffset);
+        }
+
+        public ConsoleColor GetBackground(int x, int y)
+        {
+            return this.graphics.GetBackground(x + this.xOffset, y + yOffset);
+        }
+
         public void Dispose()
         {
         }

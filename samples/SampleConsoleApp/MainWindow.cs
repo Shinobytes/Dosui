@@ -12,47 +12,80 @@ namespace SampleConsoleApp
         {
             this.Text = "Test";
 
-            var toggle = new ToggleButton();
-            toggle.Position = new Point(1, 2);
-            toggle.Text = "Toggle me by pressing Enter";
+            AddInfoLabel();
+
+            var pb = new ProgressBar
+            {
+                Position = new Point(50, 2),
+                Size = new Size(35, 1),
+                Value = 60.5f
+            };
+
+            var toggle = new ToggleButton
+            {
+                Position = new Point(1, 2),
+                Text = "Toggle me by pressing Enter"
+            };
             toggle.Focus();
             this.Controls.Add(toggle);
 
-            var toggle2 = new ToggleButton();
-            toggle2.Position = new Point(1, 4);
-            toggle2.Text = "Another toggle";
-            
+            var toggle2 = new ToggleButton
+            {
+                Position = new Point(1, 4),
+                Text = "Or by pressing the spacebar!"
+            };
             this.Controls.Add(toggle2);
 
-            var label = new TextBlock(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, " +
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, " +
-                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
-                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-                new Point(1, 6));
+            var toggle3 = new ToggleButton
+            {
+                Position = new Point(1, 5),
+                Text = "Indeterminate progressbar"
+            };
+            toggle3.Invoke += (sender, args) =>
+            {
+                pb.Indeterminate = toggle3.IsChecked;
+            };
+            this.Controls.Add(toggle3);
 
 
-            this.Controls.Add(label);
+            // pb.Indeterminate = true;
+            // pb.ProgressValuePosition = ProgressValuePosition.Above;
+            // pb.ProgressBackColor = this.BackgroundColor; // << for "transparent" background
+            this.Controls.Add(pb);
+
+
+            var btn3 = new Button
+            {
+                Position = new Point(2, 10),
+                Size = new Size(20, 1),
+                Text = "Not fancy button",
+                BackgroundColor = ConsoleColor.Blue,
+                ForegroundColor = ConsoleColor.White,
+                DropShadow = false
+            };
+            this.Controls.Add(btn3);
+
+
+            var btn1 = new Button
+            {
+                Position = new Point(25, 10),
+                Size = new Size(13, 1),
+                Text = "Press me!"
+            };
+            this.Controls.Add(btn1);
+
+            var btn2 = new Button
+            {
+                Position = new Point(50, 10),
+                Size = new Size(11, 1),
+                Text = "And me!"
+            };
+            btn2.Invoke += (sender, args) =>
+            {
+                btn1.Text = "Now me please!";
+                btn1.Size = new Size(18, 1);
+            };
+            this.Controls.Add(btn2);
 
             var menuStrip = new MenuStrip();
 
@@ -145,9 +178,45 @@ namespace SampleConsoleApp
             this.Controls.Add(menuStrip);
         }
 
+        private void AddInfoLabel()
+        {
+            var label = new TextBlock(
+                " Press 'TAB' anytime you want to focus on a different control. And sometimes even the Arrow Keys can be used as long as the active/focused control does not listen for those particular keys." +
+                "                                                                                                                                        " +
+                "                                                                                                                                        " +
+                "                                                                                                                                        " +
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, " +
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum" +
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, " +
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+                "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+                new Point(1, 7));
+
+            this.Controls.Add(label);
+        }
+
         public override bool OnKeyDown(KeyInfo key)
         {
-            if (key.Key == ConsoleKey.Spacebar)
+            if (key.Key == ConsoleKey.F1)
             {
                 if (aboutWindow.Visible)
                 {

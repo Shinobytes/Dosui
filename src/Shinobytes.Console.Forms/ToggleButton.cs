@@ -29,13 +29,14 @@ namespace Shinobytes.Console.Forms
 
         public override bool OnKeyDown(KeyInfo key)
         {
-            if (this.HasFocus && key.Key == ConsoleKey.Enter)
+            if (this.HasFocus && key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
             {
                 this.IsChecked = !this.IsChecked;
                 Invoke?.Invoke(this, EventArgs.Empty);
                 return false;
             }
-            return true;
+
+            return base.HandleNavigationKeys(key);
         }
     }
 }
