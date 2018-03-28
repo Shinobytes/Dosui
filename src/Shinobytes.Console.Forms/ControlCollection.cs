@@ -105,5 +105,9 @@ namespace Shinobytes.Console.Forms
             return (T)this[index];
         }
 
+        public T FindOfType<T>() where T : Control
+        {
+            return this.FirstOrDefault(x => x is T) as T;
+        }
     }
 }

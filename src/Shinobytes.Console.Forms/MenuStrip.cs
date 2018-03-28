@@ -40,8 +40,7 @@ namespace Shinobytes.Console.Forms
 
         public override bool OnKeyDown(KeyInfo key)
         {
-            this.Controls.Where(x => !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
-            return true;
+            return this.Controls.Where(x => !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
         }
 
         public override void Focus()
@@ -52,6 +51,21 @@ namespace Shinobytes.Console.Forms
             {
                 firstItem.Focus();
             }
+        }
+
+        public override bool HasFocus
+        {
+            get
+            {
+                if (base.HasFocus)
+                    return true;
+
+                if (this.Controls.Any(x => x.HasFocus))
+                    return true;
+
+                return false;
+            }
+            internal set { base.HasFocus = value; }
         }
     }
 }

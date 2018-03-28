@@ -54,6 +54,9 @@ namespace Shinobytes.Console.Forms
 
         public override bool Navigation(Control sender, ConsoleKey key)
         {
+            if (key == ConsoleKey.Escape)
+                return true;
+
             int Distance(Point a, Point b) => (a.X - b.X) + (a.Y - b.Y);
             if (this.Controls.Count == 0) return true;
             var controls = this.Controls
@@ -89,7 +92,7 @@ namespace Shinobytes.Console.Forms
                         dir > 0 ? x.TabIndex > sender.TabIndex : x.TabIndex < sender.TabIndex);
             }
 
-            if (target != null)
+            if (target)
             {
                 target.Focus();
                 return false;
@@ -104,7 +107,7 @@ namespace Shinobytes.Console.Forms
             {
                 // change focus to next item
                 var activeControl = ActiveControl;
-                var nextItem = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus && (activeControl == null || x.TabIndex > activeControl.TabIndex));
+                var nextItem = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus && (activeControl == null || activeControl is MenuStrip || x.TabIndex > activeControl.TabIndex));
                 if (nextItem != null)
                 {
                     nextItem.Focus();
@@ -114,14 +117,13 @@ namespace Shinobytes.Console.Forms
             else
             {
                 var activeControl = this.ActiveControl;
-                if (activeControl != null)
+                if (activeControl)
                 {
                     if (activeControl.IsEnabled)
                     {
-
                         // unless this is an input control, we should listen for possible menu shortcuts
                         // and if one is reached, jump to it.
-                        if (!IsNavigationKey(key.Key))
+                        if (!IsNavigationOrActionKey(key.Key))
                         {
                             if (!Controls.Where(x => x.ShortcutListener).DoWhile(x => x.OnKeyDown(key)))
                             {
@@ -133,7 +135,21 @@ namespace Shinobytes.Console.Forms
                     }
                 }
 
-                Controls.Where(x => x.ShortcutListener || x.HasFocus && !x.EventBlocked()).DoWhile(x => x.OnKeyDown(key));
+                Controls.Where(x => x.ShortcutListener || x.HasFocus && !x.EventBlocked())
+                    .DoWhile(x => x.OnKeyDown(key));
+
+                // navigate to first best control if no control has focus
+                if (this is Window window)
+                {
+                    var hasFocusOrNoActiveControl = window.HasFocus || !this.ActiveControl;
+                    var isArrowKey = IsArrowKey(key.Key);
+                    var noActiveWindow = InputManager.ActiveWindow == null || InputManager.ActiveWindow == window;
+                    if (isArrowKey && hasFocusOrNoActiveControl && noActiveWindow)
+                    {
+                        this.Focus();
+                        return false;
+                    }
+                }
             }
 
             return true;

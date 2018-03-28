@@ -17,7 +17,7 @@ namespace Shinobytes.Console.Forms.Graphics
         public ConsoleColor Background { get; set; }
         public ConsoleColor Foreground { get; set; }
     }
-    
+
     public class ConsoleGraphics : IGraphics
     {
         private ConsolePixel[] pixels;
@@ -220,22 +220,48 @@ namespace Shinobytes.Console.Forms.Graphics
         {
             DrawRect(x, y, width - 1, height - 1, backgroundColor);
 
+            var narrowShadow = height < 3;
+            var shadowRight = AsciiCodes.GetAsciiChar(220);
+            var shadowBottom = AsciiCodes.GetAsciiChar(223);
             for (var i = y; i < (y + height); i++)
             {
-                var c0 = this.GetPixelChar(x + width - 1, i);
-                var c1 = this.GetPixelChar(x + width, i);
 
-                SetPixelChar(c0, x + width - 1, i, ConsoleColor.DarkGray, ConsoleColor.Black);
-                SetPixelChar(c1, x + width, i, ConsoleColor.DarkGray, ConsoleColor.Black);
+                if (narrowShadow)
+                {
+                    // most likely a button, or just a very narrow control
+                    // unfortunately, the only way to get a proper dropshadow for such
+                    // control is to use the half-size block ▄
+                    // and this hides the text under it.                    
+                    var bg0 = this.GetBackground(x + width - 1, i);
+
+                    SetPixelChar(i == y 
+                            ? shadowRight 
+                            : shadowBottom, x + width - 1, i, ConsoleColor.Black, bg0);
+                }
+                else
+                {
+                    var c0 = this.GetPixelChar(x + width - 1, i);
+                    var c1 = this.GetPixelChar(x + width, i);
+                    SetPixelChar(c0, x + width - 1, i, ConsoleColor.DarkGray, ConsoleColor.Black);
+                    SetPixelChar(c1, x + width, i, ConsoleColor.DarkGray, ConsoleColor.Black);
+                }
             }
 
             for (var i = x + 1; i < (x + width - 1); i++)
             {
-                var sampledChar = this.GetPixelChar(i, y + height - 1);
-                SetPixelChar(sampledChar, i, y + height - 1, ConsoleColor.DarkGray, ConsoleColor.Black);
+                if (narrowShadow)
+                {
+                    var sampledBg = this.GetBackground(i, y + height - 1);
+                    SetPixelChar(shadowBottom, i, y + height - 1, ConsoleColor.Black, sampledBg);
+                }
+                else
+                {
+                    var sampledChar = this.GetPixelChar(i, y + height - 1);
+                    SetPixelChar(sampledChar, i, y + height - 1, ConsoleColor.DarkGray, ConsoleColor.Black);
+                }
             }
         }
-        
+
         public void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderColor, ConsoleColor backgroundColor)
         {
             var topBorder = AsciiCodes.GetBorderChars(thickness.Top);

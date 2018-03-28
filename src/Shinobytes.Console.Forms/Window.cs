@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Shinobytes.Console.Forms.Graphics;
 
 namespace Shinobytes.Console.Forms
@@ -6,17 +9,39 @@ namespace Shinobytes.Console.Forms
     public class Window : ContainerControl
     {
         private bool closed;
+        private bool? dialogResult;
+        private TaskCompletionSource<bool?> completionSource;
+        private readonly List<Action<bool?>> closeCallbacks = new List<Action<bool?>>();
+
+        public event EventHandler<bool?> Closed;
+
         public bool IsMainWindow { get; internal set; }
-        public DialogResult DialogResult { get; set; }
         public ConsoleColor CaptionColor { get; set; } = ConsoleColor.Gray;
         public ConsoleColor BorderColor { get; set; } = ConsoleColor.DarkGray;
+
+        internal bool IsDialog { get; set; }
+
         public Window()
         {
             WindowManager.Register(this);
+            Parent = WindowManager.MainWindow;
 
             Visible = false;
             BackgroundColor = ConsoleColor.DarkBlue;
             ForegroundColor = ConsoleColor.Black;
+        }
+
+
+        public bool? DialogResult
+        {
+            get => dialogResult;
+            set
+            {
+                // close dialog
+                dialogResult = value;
+
+                this.Close();
+            }
         }
 
         public override void Draw(IGraphics graphics, AppTime appTime)
@@ -30,6 +55,20 @@ namespace Shinobytes.Console.Forms
             {
                 DrawWindow(graphics, appTime);
             }
+        }
+
+        public override void Focus()
+        {
+            if (!this.ActiveControl)
+            {
+                var focusableControl = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus);
+                if (focusableControl)
+                {
+                    focusableControl.Focus();
+                }
+            }
+
+            base.Focus();
         }
 
         private void DrawWindow(IGraphics graphics, AppTime appTime)
@@ -82,7 +121,7 @@ namespace Shinobytes.Console.Forms
             graphics.SetPixelChar(AsciiCodes.BorderSingle_BottomRight, Position.X - borderPaddingX + Size.Width - 1, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
 
             // window caption text
-            graphics.DrawString(Text, Position.X + (Size.Width / 2 - Text.Length / 2) - 1, Position.Y, ForegroundColor, CaptionColor);
+            graphics.DrawString(Text, (int)(Position.X + (Size.Width / 2f - Text.Length / 2f)), Position.Y, ForegroundColor, CaptionColor);
 
             using (var gfx = graphics.CreateViewport(this.Position.X + 2, this.Position.Y + 1))
             {
@@ -102,29 +141,58 @@ namespace Shinobytes.Console.Forms
 
         public void Show()
         {
-            if (closed)
-                throw new Exception(
-                    "Window has already been closed and cannot be opened again. Use Hide() if you intend to temporarily hide the window from the user.");
+            if (this.Visible) return;
 
+            WindowManager.Register(this);
+            this.Focus();
             Visible = true;
+            var firstFocusableControl = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus);
+            if (firstFocusableControl) firstFocusableControl.Focus();
+        }
+
+        public void Show(Action<bool?> callback)
+        {
+            if (this.Visible) return;
+            this.Show();
+            if (callback != null)
+                this.closeCallbacks.Add(callback);
         }
 
         public void Close()
         {
+            WindowManager.Unregister(this);
+
             Visible = false;
             IsEnabled = false;
             closed = true;
-            WindowManager.Unregister(this);
+            Blur();
+
+            Closed?.Invoke(this, this.DialogResult);
+
+            if (completionSource != null && !completionSource.Task.IsCompleted)
+            {
+                completionSource.TrySetResult(dialogResult);
+            }
+
+            foreach (var callback in closeCallbacks)
+            {
+                callback?.Invoke(this.dialogResult);
+            }
+
+            closeCallbacks.Clear();
         }
 
-        public DialogResult ShowDialog()
-        {
-            return DialogResult;
-        }
+        //public Task<bool?> ShowDialogAsync()
+        //{
+        //    this.Show();
+        //    completionSource = new TaskCompletionSource<bool?>();
+        //    return completionSource.Task;
+        //}
 
         public void Hide()
         {
             Visible = false;
+            this.Blur();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Shinobytes.Console.Forms
         public int TabIndex { get; set; }
         public bool Visible { get; set; } = true;
         public bool IsEnabled { get; set; } = true;
-        public bool HasFocus { get; internal set; } = false;
+        public virtual bool HasFocus { get; internal set; } = false;
         public bool TransparentBackground { get; set; } = true;
 
         public ConsoleColor ForegroundColor { get; set; } = ConsoleColor.White;
@@ -141,7 +141,7 @@ namespace Shinobytes.Console.Forms
 
         protected bool HandleNavigationKeys(KeyInfo key)
         {
-            if (!IsNavigationKey(key.Key))
+            if (!IsArrowKey(key.Key))
                 return true; // continue as if nothing happened
             if (Parent != null)
             {
@@ -155,10 +155,20 @@ namespace Shinobytes.Console.Forms
             return true;
         }
 
-        internal bool IsNavigationKey(ConsoleKey key)
+        internal bool IsNavigationOrActionKey(ConsoleKey key)
         {
             return key == ConsoleKey.Enter || key == ConsoleKey.Escape || key == ConsoleKey.LeftArrow ||
                    key == ConsoleKey.UpArrow || key == ConsoleKey.RightArrow || key == ConsoleKey.DownArrow;
+        }
+
+        internal bool IsArrowKey(ConsoleKey key)
+        {
+            return key == ConsoleKey.LeftArrow || key == ConsoleKey.UpArrow || key == ConsoleKey.RightArrow || key == ConsoleKey.DownArrow;
+        }
+
+        public static implicit operator bool(Control control)
+        {
+            return control != null;
         }
     }
 }

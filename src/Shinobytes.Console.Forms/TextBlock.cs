@@ -31,7 +31,12 @@ namespace Shinobytes.Console.Forms
 
         public override void Draw(IGraphics graphics, AppTime appTime)
         {
-            graphics.DrawString(this.Text, this.Position.X, this.Position.Y, this.ForegroundColor, this.BackgroundColor);
+            if (string.IsNullOrEmpty(this.Text)) return;
+            var rows = this.Text.Split('\n');
+            for (var i = 0; i < rows.Length; i++)
+            {
+                graphics.DrawString(rows[i], this.Position.X, this.Position.Y + i, this.ForegroundColor, this.BackgroundColor);
+            }
         }
 
         public override void Update(AppTime appTime)

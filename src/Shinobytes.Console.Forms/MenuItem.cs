@@ -154,6 +154,7 @@ namespace Shinobytes.Console.Forms
                     {
                         menu.ControlAt<MenuItem>(index - 1).ShowMenu();
                         this.HideMenu();
+                        return false;
                     }
                 }
                 else
