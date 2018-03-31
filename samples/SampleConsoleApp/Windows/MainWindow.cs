@@ -8,6 +8,7 @@ namespace SampleConsoleApp
     {
         private readonly Window aboutWindow;
         private readonly Window testWindow;
+        private StatusStrip statusStrip;
 
         public MainWindow()
         {
@@ -157,6 +158,27 @@ namespace SampleConsoleApp
 
             menuStrip.Controls.Add(helpMenu);
             this.Controls.Add(menuStrip);
+
+
+            statusStrip = new StatusStrip();
+            statusStrip.Controls.Add(new TextBlock("F1=About")
+            {
+                ForegroundColor = ConsoleColor.Black
+            });
+            statusStrip.Controls.Add(new TextBlock("F2=Bananas")
+            {
+                ForegroundColor = ConsoleColor.Black
+            });
+            statusStrip.Controls.Add(new TextBlock("F3=Hax")
+            {
+                ForegroundColor = ConsoleColor.Black
+            });
+            statusStrip.Controls.Add(new TextBlock("F4=Open file dialog")
+            {
+                ForegroundColor = ConsoleColor.Black
+            });
+            this.Controls.Add(statusStrip);
+
         }
 
         private void AddInfoLabel()
@@ -215,8 +237,8 @@ namespace SampleConsoleApp
                     if (result.GetValueOrDefault())
                     {
                         MessageBox.Show(
-                            "So you want to open: " + ofd.SelectedFile + ", eh?", 
-                            " File to be opened ", 
+                            "So you want to open: " + ofd.SelectedFile + ", eh?",
+                            " File to be opened ",
                             MessageBoxButtons.OK);
                     }
                     else

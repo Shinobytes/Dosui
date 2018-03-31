@@ -19,6 +19,21 @@ namespace Shinobytes.Console.Forms
 
             Controls.Add(new TextBlock("-- Dialog not implemented --", ConsoleColor.Red, new Point(3, 1)));
 
+
+
+            var tbx = new TextBox
+            {
+                Text = "Test",
+                Placeholder = "Enter a name",
+                Size = new Size(28, 1),
+                Position = new Point(3, 3)
+            };
+            Controls.Add(tbx);
+
+
+
+
+
             var openBtn = new Button
             {
                 Text = "Open",

@@ -37,14 +37,14 @@ namespace Shinobytes.Console.Forms.Graphics
             return graphics.GetPixelChar(xOffset + x, yOffset + y);
         }
 
-        public void SetPixelChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
+        public void SetPixel(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
-            graphics.SetPixelChar(c, xOffset + x, yOffset + y, foreground, background);
+            graphics.SetPixel(c, xOffset + x, yOffset + y, foreground, background);
         }
 
-        public void SetPixelAsciiChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
+        public void SetPixelAscii(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
-            graphics.SetPixelAsciiChar(c, xOffset + x, yOffset + y, foreground, background);
+            graphics.SetPixelAscii(c, xOffset + x, yOffset + y, foreground, background);
         }
 
         public void SetPixel(int x, int y, ConsoleColor color)
@@ -64,9 +64,9 @@ namespace Shinobytes.Console.Forms.Graphics
             graphics.DrawLine(xOffset + x1, yOffset + y1, xOffset + x2, yOffset + y2, color);
         }
 
-        public void DrawLineChar(char c, int x1, int y1, int x2, int y2, ConsoleColor color, ConsoleColor background)
+        public void DrawLine(char c, int x1, int y1, int x2, int y2, ConsoleColor color, ConsoleColor background)
         {
-            graphics.DrawLineChar(c, xOffset + x1, yOffset + y1, xOffset + x2, yOffset + y2, color, background);
+            graphics.DrawLine(c, xOffset + x1, yOffset + y1, xOffset + x2, yOffset + y2, color, background);
         }
 
         public void DrawSprite(ConsoleSprite sprite, int x, int y, bool flipHorizontal = false)
@@ -97,6 +97,14 @@ namespace Shinobytes.Console.Forms.Graphics
         public void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderColor, ConsoleColor backgroundColor)
         {
             this.graphics.DrawBorder(thickness, xOffset + x, yOffset + y, width, height, borderColor, backgroundColor);
+        }
+
+        public void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderTopColor,
+            ConsoleColor borderRightColor, ConsoleColor borderBottomColor, ConsoleColor borderLeftColor,
+            ConsoleColor backgroundColor)
+        {
+            this.graphics.DrawBorder(thickness, xOffset + x, yOffset + y, width, height, 
+                borderTopColor, borderRightColor, borderBottomColor, borderLeftColor, backgroundColor);
         }
 
         public ConsoleColor GetForeground(int x, int y)

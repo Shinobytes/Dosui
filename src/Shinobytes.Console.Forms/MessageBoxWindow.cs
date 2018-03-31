@@ -62,7 +62,6 @@ namespace Shinobytes.Console.Forms
                 input.Remove(cutIndex),
                 input.Substring(cutIndex)
             };
-
         }
 
         public void SetupButtons(MessageBoxButtons buttons)

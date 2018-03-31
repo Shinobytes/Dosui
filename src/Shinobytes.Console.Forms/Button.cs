@@ -52,14 +52,14 @@ namespace Shinobytes.Console.Forms
 
             if (this.HasFocus)
             {
-                graphics.SetPixelChar(
+                graphics.SetPixel(
                     AsciiCodes.TriangleRight,
                     Position.X,
                     Position.Y,
                     ConsoleColor.White,
                     Application.ThemeColor);
 
-                graphics.SetPixelChar(
+                graphics.SetPixel(
                     AsciiCodes.TriangleLeft,
                     Position.X + size.Width - 1,
                     Position.Y,

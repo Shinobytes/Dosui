@@ -89,13 +89,13 @@ namespace Shinobytes.Console.Forms
 
                 // 1. get char at x,y
                 // 2. set pixel char, same char but with black bg and gray foreground to create a "shadow" ontop of text.
-                graphics.SetPixelChar(c0, Position.X + Size.Width, Position.Y + i + 1, ConsoleColor.DarkGray, ConsoleColor.Black);
-                graphics.SetPixelChar(c1, Position.X + Size.Width + 1, Position.Y + i + 1, ConsoleColor.DarkGray, ConsoleColor.Black);
+                graphics.SetPixel(c0, Position.X + Size.Width, Position.Y + i + 1, ConsoleColor.DarkGray, ConsoleColor.Black);
+                graphics.SetPixel(c1, Position.X + Size.Width + 1, Position.Y + i + 1, ConsoleColor.DarkGray, ConsoleColor.Black);
 
                 // borders, both left and right
                 if (i == 0 || i == Size.Height) continue;
-                graphics.SetPixelChar(AsciiCodes.BorderSingle_Vertical, Position.X + borderPaddingX, Position.Y + i, this.BorderColor, this.BackgroundColor);
-                graphics.SetPixelChar(AsciiCodes.BorderSingle_Vertical, Position.X + Size.Width - (1 + borderPaddingX), Position.Y + i, this.BorderColor, this.BackgroundColor);
+                graphics.SetPixel(AsciiCodes.BorderSingle_Vertical, Position.X + borderPaddingX, Position.Y + i, this.BorderColor, this.BackgroundColor);
+                graphics.SetPixel(AsciiCodes.BorderSingle_Vertical, Position.X + Size.Width - (1 + borderPaddingX), Position.Y + i, this.BorderColor, this.BackgroundColor);
             }
 
 
@@ -104,21 +104,21 @@ namespace Shinobytes.Console.Forms
             {
                 // bottom shadow
                 var c0 = graphics.GetPixelChar(Position.X + 1 + i, Position.Y + Size.Height);
-                graphics.SetPixelChar(c0, Position.X + 1 + i, Position.Y + Size.Height, ConsoleColor.DarkGray, ConsoleColor.Black);
+                graphics.SetPixel(c0, Position.X + 1 + i, Position.Y + Size.Height, ConsoleColor.DarkGray, ConsoleColor.Black);
 
                 // border bottom and top
                 if (i <= borderPaddingX || i >= Size.Width - (1 + borderPaddingX)) continue;
-                graphics.SetPixelChar(AsciiCodes.BorderSingle_Horizontal, Position.X + i, Position.Y, this.BorderColor, this.BackgroundColor);
-                graphics.SetPixelChar(AsciiCodes.BorderSingle_Horizontal, Position.X + i, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
+                graphics.SetPixel(AsciiCodes.BorderSingle_Horizontal, Position.X + i, Position.Y, this.BorderColor, this.BackgroundColor);
+                graphics.SetPixel(AsciiCodes.BorderSingle_Horizontal, Position.X + i, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
             }
 
             // draw top border corners
-            graphics.SetPixelChar(AsciiCodes.BorderSingle_TopLeft, Position.X + borderPaddingX, Position.Y, this.BorderColor, this.BackgroundColor);
-            graphics.SetPixelChar(AsciiCodes.BorderSingle_TopRight, Position.X - borderPaddingX + Size.Width - 1, Position.Y, this.BorderColor, this.BackgroundColor);
+            graphics.SetPixel(AsciiCodes.BorderSingle_TopLeft, Position.X + borderPaddingX, Position.Y, this.BorderColor, this.BackgroundColor);
+            graphics.SetPixel(AsciiCodes.BorderSingle_TopRight, Position.X - borderPaddingX + Size.Width - 1, Position.Y, this.BorderColor, this.BackgroundColor);
 
             // draw bottom border corners
-            graphics.SetPixelChar(AsciiCodes.BorderSingle_BottomLeft, Position.X + borderPaddingX, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
-            graphics.SetPixelChar(AsciiCodes.BorderSingle_BottomRight, Position.X - borderPaddingX + Size.Width - 1, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
+            graphics.SetPixel(AsciiCodes.BorderSingle_BottomLeft, Position.X + borderPaddingX, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
+            graphics.SetPixel(AsciiCodes.BorderSingle_BottomRight, Position.X - borderPaddingX + Size.Width - 1, Position.Y + this.Size.Height - 1, this.BorderColor, this.BackgroundColor);
 
             // window caption text
             graphics.DrawString(Text, (int)(Position.X + (Size.Width / 2f - Text.Length / 2f)), Position.Y, ForegroundColor, CaptionColor);

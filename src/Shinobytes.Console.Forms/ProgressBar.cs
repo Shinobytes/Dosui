@@ -59,7 +59,7 @@ namespace Shinobytes.Console.Forms
 
                 for (var row = 0; row < this.Size.Height; row++)
                 {
-                    graphics.DrawLineChar(
+                    graphics.DrawLine(
                         AsciiCodes.ProgressBar_Background,
                         this.Position.X + 1,
                         this.Position.Y + 1 + row,
@@ -68,7 +68,7 @@ namespace Shinobytes.Console.Forms
                         this.ProgressBackColor,
                         this.ProgressBackColor);
 
-                    graphics.DrawLineChar(
+                    graphics.DrawLine(
                         AsciiCodes.ProgressBar_Foreground,
                         this.Position.X + 1 + offsetX,
                         this.Position.Y + 1 + row,
@@ -83,7 +83,7 @@ namespace Shinobytes.Console.Forms
 
                 for (var row = 0; row < this.Size.Height; row++)
                 {
-                    graphics.DrawLineChar(
+                    graphics.DrawLine(
                         AsciiCodes.ProgressBar_Background,
                         this.Position.X + 1,
                         this.Position.Y + 1 + row,
@@ -95,7 +95,7 @@ namespace Shinobytes.Console.Forms
 
                     var proc = (Value / (this.MaxValue - this.MinValue));
                     var width = (int)(this.Size.Width * proc);
-                    graphics.DrawLineChar(
+                    graphics.DrawLine(
                         AsciiCodes.ProgressBar_Foreground,
                         this.Position.X + 1,
                         this.Position.Y + 1 + row,
@@ -119,7 +119,7 @@ namespace Shinobytes.Console.Forms
                             var sampleFg = graphics.GetForeground(textX + i, textY);
                             var fg = sampleFg == this.ProgressFrontColor ? this.BackgroundColor : this.ForegroundColor;
                             var bg = sampleFg == this.ProgressFrontColor ? this.ProgressFrontColor : this.ProgressBackColor;
-                            graphics.SetPixelChar(text[i], textX + i, textY, fg, bg);
+                            graphics.SetPixel(text[i], textX + i, textY, fg, bg);
                         }
                         return;
                     }

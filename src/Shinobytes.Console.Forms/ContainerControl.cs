@@ -12,6 +12,11 @@ namespace Shinobytes.Console.Forms
             Controls = new ControlCollection(this);
         }
 
+        protected ContainerControl(Control parent) : base(parent)
+        {
+            Controls = new ControlCollection(this);
+        }
+
         public ControlCollection Controls { get; }
 
         public Control ActiveControl

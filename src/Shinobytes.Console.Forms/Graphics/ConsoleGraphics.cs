@@ -4,20 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace Shinobytes.Console.Forms.Graphics
 {
-    public struct ConsolePixel
-    {
-        public ConsolePixel(char c, ConsoleColor background, ConsoleColor foreground)
-        {
-            Char = c;
-            Background = background;
-            Foreground = foreground;
-        }
-
-        public char Char { get; set; }
-        public ConsoleColor Background { get; set; }
-        public ConsoleColor Foreground { get; set; }
-    }
-
     public class ConsoleGraphics : IGraphics
     {
         private ConsolePixel[] pixels;
@@ -86,7 +72,7 @@ namespace Shinobytes.Console.Forms.Graphics
         public char GetPixelChar(int x, int y)
         {
             var i = y * Width + x;
-            if (i >= pixels.Length) return ' ';
+            if (i < 0 || i >= pixels.Length) return ' ';
             return pixels[i].Char;
             //if (i >= Buffer.Length) return ' ';            
             //return Buffer[i].UnicodeChar;
@@ -95,7 +81,7 @@ namespace Shinobytes.Console.Forms.Graphics
         public void SetPixel(int x, int y, ConsoleColor color)
         {
             var i = y * Width + x;
-            if (i >= pixels.Length) return;
+            if (i < 0 || i >= pixels.Length) return;
             pixels[i].Char = ' '; // █
             pixels[i].Background = color;
             pixels[i].Foreground = color;
@@ -103,10 +89,10 @@ namespace Shinobytes.Console.Forms.Graphics
             //Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
         }
 
-        public void SetPixelChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
+        public void SetPixel(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
             var i = y * Width + x;
-            if (i >= pixels.Length || c == '\0') return;
+            if (i < 0 || i >= pixels.Length || c == '\0') return;
             pixels[i].Char = c;
             pixels[i].Background = background;
             pixels[i].Foreground = foreground;
@@ -114,10 +100,10 @@ namespace Shinobytes.Console.Forms.Graphics
             //Buffer[i].Attributes = (short)((byte)foreground | ((byte)background << 4));
         }
 
-        public void SetPixelAsciiChar(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
+        public void SetPixelAscii(char c, int x, int y, ConsoleColor foreground, ConsoleColor background)
         {
             var i = y * Width + x;
-            if (i >= pixels.Length || c == '\0') return;
+            if (i < 0 || i >= pixels.Length || c == '\0') return;
             pixels[i].Char = c;
             pixels[i].Background = background;
             pixels[i].Foreground = foreground;
@@ -151,14 +137,14 @@ namespace Shinobytes.Console.Forms.Graphics
             }
         }
 
-        public void DrawLineChar(char c, int x1, int y1, int x2, int y2, ConsoleColor color, ConsoleColor background)
+        public void DrawLine(char c, int x1, int y1, int x2, int y2, ConsoleColor color, ConsoleColor background)
         {
             var dx = x2 - x1;
             var dy = y2 - y1;
             for (var x = x1; x < x2; x++)
             {
                 var y = y1 + dy * (x - x1) / dx;
-                SetPixelChar(c, x, y, color, background);
+                SetPixel(c, x, y, color, background);
             }
         }
 
@@ -172,7 +158,7 @@ namespace Shinobytes.Console.Forms.Graphics
         {
             for (var i = 0; i < text.Length; i++)
             {
-                SetPixelChar(text[i], x + i, y, foregroundColor, background);
+                SetPixel(text[i], x + i, y, foregroundColor, background);
             }
         }
 
@@ -234,16 +220,16 @@ namespace Shinobytes.Console.Forms.Graphics
                     // and this hides the text under it.                    
                     var bg0 = this.GetBackground(x + width - 1, i);
 
-                    SetPixelChar(i == y 
-                            ? shadowRight 
+                    SetPixel(i == y
+                            ? shadowRight
                             : shadowBottom, x + width - 1, i, ConsoleColor.Black, bg0);
                 }
                 else
                 {
                     var c0 = this.GetPixelChar(x + width - 1, i);
                     var c1 = this.GetPixelChar(x + width, i);
-                    SetPixelChar(c0, x + width - 1, i, ConsoleColor.DarkGray, ConsoleColor.Black);
-                    SetPixelChar(c1, x + width, i, ConsoleColor.DarkGray, ConsoleColor.Black);
+                    SetPixel(c0, x + width - 1, i, ConsoleColor.DarkGray, ConsoleColor.Black);
+                    SetPixel(c1, x + width, i, ConsoleColor.DarkGray, ConsoleColor.Black);
                 }
             }
 
@@ -252,17 +238,30 @@ namespace Shinobytes.Console.Forms.Graphics
                 if (narrowShadow)
                 {
                     var sampledBg = this.GetBackground(i, y + height - 1);
-                    SetPixelChar(shadowBottom, i, y + height - 1, ConsoleColor.Black, sampledBg);
+                    SetPixel(shadowBottom, i, y + height - 1, ConsoleColor.Black, sampledBg);
                 }
                 else
                 {
                     var sampledChar = this.GetPixelChar(i, y + height - 1);
-                    SetPixelChar(sampledChar, i, y + height - 1, ConsoleColor.DarkGray, ConsoleColor.Black);
+                    SetPixel(sampledChar, i, y + height - 1, ConsoleColor.DarkGray, ConsoleColor.Black);
                 }
             }
         }
 
         public void DrawBorder(BorderThickness thickness, int x, int y, int width, int height, ConsoleColor borderColor, ConsoleColor backgroundColor)
+        {
+            DrawBorder(thickness, x, y, width, height, borderColor, borderColor, borderColor, borderColor,
+                backgroundColor);
+        }    
+
+        public void DrawBorder(
+            BorderThickness thickness,
+            int x, int y, int width, int height,
+            ConsoleColor borderTopColor,
+            ConsoleColor borderRightColor,
+            ConsoleColor borderBottomColor,
+            ConsoleColor borderLeftColor,
+            ConsoleColor backgroundColor)
         {
             var topBorder = AsciiCodes.GetBorderChars(thickness.Top);
             var leftBorder = AsciiCodes.GetBorderChars(thickness.Left);
@@ -272,24 +271,24 @@ namespace Shinobytes.Console.Forms.Graphics
             // draw vertical lines
             for (var i = 0; i < height - 1; i++)
             {
-                SetPixelChar(leftBorder[3], x, y + i + 1, borderColor, backgroundColor);
-                SetPixelChar(rightBorder[3], x + width, y + i + 1, borderColor, backgroundColor);
+                SetPixel(leftBorder[3], x, y + i + 1, borderLeftColor, backgroundColor);
+                SetPixel(rightBorder[3], x + width, y + i + 1, borderRightColor, backgroundColor);
             }
 
             // draw top corners
-            SetPixelChar(topBorder[0], x, y, borderColor, backgroundColor);
-            SetPixelChar(topBorder[1], x + width, y, borderColor, backgroundColor);
+            SetPixel(topBorder[0], x, y, borderTopColor, backgroundColor);
+            SetPixel(topBorder[1], x + width, y, borderTopColor, backgroundColor);
 
             // draw horizontal lines
             for (var i = 0; i < width - 1; i++)
             {
-                SetPixelChar(topBorder[2], x + i + 1, y, borderColor, backgroundColor);
-                SetPixelChar(botBorder[2], x + i + 1, y + height, borderColor, backgroundColor);
+                SetPixel(topBorder[2], x + i + 1, y, borderTopColor, backgroundColor);
+                SetPixel(botBorder[2], x + i + 1, y + height, borderBottomColor, backgroundColor);
             }
 
             // draw bottom corners
-            SetPixelChar(botBorder[4], x, y + height, borderColor, backgroundColor);
-            SetPixelChar(botBorder[5], x + width, y + height, borderColor, backgroundColor);
+            SetPixel(botBorder[4], x, y + height, borderBottomColor, backgroundColor);
+            SetPixel(botBorder[5], x + width, y + height, borderBottomColor, backgroundColor);
         }
 
         public ConsoleColor GetForeground(int x, int y)
