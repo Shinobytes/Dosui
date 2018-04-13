@@ -2,9 +2,9 @@
 
 ![](https://github.com/zerratar/Shinobytes.Console.Forms/blob/master/samples/Screenshots/0.png)
 
+Name not yet finalized, hence both combinations are available.
 
-## Introduction
-Is a UI Framework similar to System.Windows.Forms but for Consoles, making it easy to create console applications that looks like old DOS applications.
+Dosui is an UI Framework similar to System.Windows.Forms but for Consoles, making it easy to create console applications that looks like old DOS applications.
 
 Shinobytes.Console.Forms is written in C#, .NET Framework v4.6.1 using Visual Studio 2017.
 
@@ -39,5 +39,7 @@ To be updated. And will obviously include how to use each control. For now, use 
 ### Future controls
 * Multilined TextBox
 * Open/Save File Dialogs
+* Scrollbars
+* RichTextBox?
 * Much more
 * Your suggestion goes here
