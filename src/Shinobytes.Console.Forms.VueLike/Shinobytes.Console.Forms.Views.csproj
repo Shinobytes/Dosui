@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.7.4.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\HtmlAgilityPack.1.7.4\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,14 +43,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Interfaces\IViewControlUpdater.cs" />
+    <Compile Include="Core\ExpressionParser\CollectionStream.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\IndexedMemberAccess.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\MemberInvocation.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\Identifier.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\Indexer.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\MemberAccess.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\Number.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\SyntaxNode.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\Text.cs" />
+    <Compile Include="Core\ExpressionParser\Nodes\TextChar.cs" />
+    <Compile Include="Core\ExpressionParser\Token.cs" />
+    <Compile Include="Core\ExpressionParser\Tokenizer.cs" />
+    <Compile Include="Core\ExpressionParser\TokenType.cs" />
+    <Compile Include="Core\Interfaces\IViewControlBinder.cs" />
     <Compile Include="Core\Interfaces\IViewTemplate.cs" />
     <Compile Include="Core\Interfaces\IViewTemplateControlTreeBuilder.cs" />
     <Compile Include="Core\Interfaces\IViewTemplateParser.cs" />
+    <Compile Include="Core\InvalidViewTemplateException.cs" />
+    <Compile Include="Core\Interfaces\IViewTemplateNode.cs" />
+    <Compile Include="Core\Interfaces\IViewTemplateNodeExpression.cs" />
+    <Compile Include="Core\Interfaces\IViewTemplateExpressionParser.cs" />
+    <Compile Include="Core\TemplateNodes\TextNode.cs" />
+    <Compile Include="Core\TemplateNodes\ValueBindingNode.cs" />
+    <Compile Include="Core\TemplateNodes\ValueBlockNode.cs" />
+    <Compile Include="Core\ViewTemplate.cs" />
+    <Compile Include="Core\ExpressionParser\ViewTemplateExpressionParser.cs" />
+    <Compile Include="IView.cs" />
+    <Compile Include="IViewComponent.cs" />
+    <Compile Include="IViewObject.cs" />
     <Compile Include="View.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewComponent.cs" />
-    <Compile Include="Core\ViewControlUpdater.cs" />
+    <Compile Include="Core\ViewControlBinder.cs" />
     <Compile Include="ViewComponentCollection.cs" />
     <Compile Include="ViewOptions.cs" />
     <Compile Include="Core\ViewTemplateControlTreeBuilder.cs" />
@@ -59,5 +87,9 @@
       <Name>Shinobytes.Console.Forms</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

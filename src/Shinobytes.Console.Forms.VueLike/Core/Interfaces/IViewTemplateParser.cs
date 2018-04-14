@@ -1,6 +1,6 @@
 ﻿namespace Shinobytes.Console.Forms.Views
 {
-    internal interface IViewTemplateParser
+    public interface IViewTemplateParser
     {
         IViewTemplate Parse(string templateContent);
     }

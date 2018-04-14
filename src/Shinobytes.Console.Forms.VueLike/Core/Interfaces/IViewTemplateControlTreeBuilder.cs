@@ -2,6 +2,6 @@
 {
     public interface IViewTemplateControlTreeBuilder
     {
-        ControlCollection Build(IViewTemplate template);
+        ControlCollection Build(IViewTemplate template, IViewObject source);
     }
 }

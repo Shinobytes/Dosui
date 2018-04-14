@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Shinobytes.Console.Forms.Views
 {
-    public class View : Window
+    public class View : Window, IView
     {
-        internal static IViewTemplateParser TemplateParser { get; set; } = new ViewTemplateParser();
-        internal static IViewTemplateControlTreeBuilder ControlTreeBuilder { get; set; } = new ViewTemplateControlTreeBuilder();
-        internal static IViewControlUpdater ControlUpdater { get; set; } = new ViewControlUpdater();
+        public static IViewTemplateParser TemplateParser { get; set; } = new ViewTemplateParser(new ViewTemplateExpressionParser());
+        public static IViewTemplateControlTreeBuilder ControlTreeBuilder { get; set; } = new ViewTemplateControlTreeBuilder();
+        public static IViewControlBinder ControlBinder { get; set; } = new ViewControlBinder();
 
         public readonly ViewComponentCollection Components = new ViewComponentCollection();
 
@@ -17,12 +18,14 @@ namespace Shinobytes.Console.Forms.Views
 
         public View(ViewOptions options)
         {
-            if (Instance != null)
-            {
-                throw new NotSupportedException("Only one running instance of the type '" + nameof(View) + "' is allowed.");
-            }
+            //if (Instance != null)
+            //{
+            //    throw new NotSupportedException("Only one running instance of the type '" + nameof(View) + "' is allowed.");
+            //}
 
-            var templateContent = System.IO.File.ReadAllText(options.TemplateFile);
+            var templateContent = !string.IsNullOrEmpty(options.TemplateData)
+                ? options.TemplateData
+                : System.IO.File.ReadAllText(options.TemplateFile);
 
             Template = TemplateParser.Parse(templateContent);
             Options = options;
@@ -40,14 +43,14 @@ namespace Shinobytes.Console.Forms.Views
             return component;
         }
 
-        public void BuildViews()
-        {
-
-        }
-
         public static void Run(View viewApp)
         {
             Application.Run(viewApp, viewApp.BuildViews);
+        }
+
+        public void BuildViews()
+        {
+            var appControls = ControlTreeBuilder.Build(this.Template, this);
         }
     }
 }
