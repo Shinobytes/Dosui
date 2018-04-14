@@ -53,7 +53,7 @@ namespace Shinobytes.Console.Forms
         /// Begins running a standard application message loop on the current thread, and makes the specifid form visible
         /// </summary>
         /// <param name="mainWindow"></param>
-        public static void Run(Window mainWindow)
+        public static void Run(Window mainWindow, Action onReady = null)
         {
             if (Current != null)
             {
@@ -62,6 +62,11 @@ namespace Shinobytes.Console.Forms
 
             Current = new Application(mainWindow);
             Current.Run();
+
+            if (onReady != null)
+            {
+                onReady();
+            }
 
             while (true)
             {

@@ -1,0 +1,3 @@
+﻿<label>
+	Hello {{ Wo() }}rld!
+</label>
