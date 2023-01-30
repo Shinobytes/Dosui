@@ -67,6 +67,7 @@
     <Compile Include="Graphics\ConsoleImage.cs" />
     <Compile Include="Graphics\Spritesheet.cs" />
     <Compile Include="Graphics\Viewport.cs" />
+    <Compile Include="Image.cs" />
     <Compile Include="InputManager.cs" />
     <Compile Include="KeyInfo.cs" />
     <Compile Include="Label.cs" />

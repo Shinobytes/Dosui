@@ -149,7 +149,7 @@ namespace Shinobytes.Console.Forms.Graphics
         }
 
         // just for lols, not really necessary :P stupid really. But you gotta enjoy your coding!
-        public static implicit operator CharInfo[] (ConsoleGraphics graphics)
+        public static implicit operator CharInfo[](ConsoleGraphics graphics)
         {
             return graphics.Buffer;
         }
@@ -178,7 +178,7 @@ namespace Shinobytes.Console.Forms.Graphics
                     var color = pixels[spi].Value;
                     var i = (y + y1) * Width + (x + x1);
                     if (i >= this.pixels.Length) return;
-
+                    if (i < 0) continue;
                     this.pixels[i].Background = color;
                     this.pixels[i].Foreground = color;
                     //Buffer[i].Attributes = (short)((byte)color | ((byte)color << 4));
@@ -252,7 +252,7 @@ namespace Shinobytes.Console.Forms.Graphics
         {
             DrawBorder(thickness, x, y, width, height, borderColor, borderColor, borderColor, borderColor,
                 backgroundColor);
-        }    
+        }
 
         public void DrawBorder(
             BorderThickness thickness,
