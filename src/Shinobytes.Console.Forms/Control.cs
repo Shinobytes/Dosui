@@ -10,6 +10,9 @@ namespace Shinobytes.Console.Forms
     {
         private bool eventBlocked = false;
         private ConsoleColor backgroundColor = ConsoleColor.Black;
+        
+        public event EventHandler<EventArgs> OnFocusLost;
+        public event EventHandler<EventArgs> OnFocus;
 
         protected Control()
         {
@@ -28,11 +31,19 @@ namespace Shinobytes.Console.Forms
         public virtual void Focus()
         {
             InputManager.Focus(this);
+            if (OnFocus != null)
+            {
+                OnFocus(this, EventArgs.Empty);
+            }
         }
 
         public virtual void Blur()
         {
             InputManager.Blur(this);
+            if (OnFocusLost != null)
+            {
+                OnFocusLost(this, EventArgs.Empty);
+            }
         }
 
         public ConsoleColor BackgroundColor
@@ -44,6 +55,8 @@ namespace Shinobytes.Console.Forms
                 TransparentBackground = false;
             }
         }
+
+        
 
         public string Text { get; set; }
 

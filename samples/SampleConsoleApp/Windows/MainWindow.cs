@@ -21,6 +21,12 @@ namespace SampleConsoleApp
             //    var value = result.GetValueOrDefault();
             //};
 
+
+            this.Controls.Add(new TextBox
+            {
+
+            });
+
             AddInfoLabel();
 
             var pb = new ProgressBar

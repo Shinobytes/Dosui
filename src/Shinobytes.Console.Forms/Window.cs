@@ -139,7 +139,7 @@ namespace Shinobytes.Console.Forms
             base.Draw(graphics, appTime);
         }
 
-        public void Show()
+        public virtual void Show()
         {
             if (this.Visible) return;
 
@@ -148,9 +148,13 @@ namespace Shinobytes.Console.Forms
             Visible = true;
             var firstFocusableControl = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus);
             if (firstFocusableControl) firstFocusableControl.Focus();
+            this.AfterShow();
         }
 
-        public void Show(Action<bool?> callback)
+        protected virtual void AfterShow() { }
+        protected virtual void AfterClose() { }
+
+        public virtual void Show(Action<bool?> callback)
         {
             if (this.Visible) return;
             this.Show();
@@ -158,7 +162,7 @@ namespace Shinobytes.Console.Forms
                 this.closeCallbacks.Add(callback);
         }
 
-        public void Close()
+        public virtual void Close()
         {
             WindowManager.Unregister(this);
 
@@ -180,6 +184,8 @@ namespace Shinobytes.Console.Forms
             }
 
             closeCallbacks.Clear();
+
+            AfterClose();
         }
 
         //public Task<bool?> ShowDialogAsync()

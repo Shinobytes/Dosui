@@ -1,4 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Shinobytes.Console.Forms.Extensions;
 using Shinobytes.Console.Forms.Graphics;
 
@@ -23,11 +28,13 @@ namespace Shinobytes.Console.Forms
         private double cursorAnimationTimer = 1;
         private bool cursorAnimationState = true;
 
-
+        public char PasswordChar { get; set; } = '*';
+        public bool Password { get; set; }
 
         public TextBox()
         {
             ForegroundColor = ConsoleColor.Black;
+            Text = string.Empty;
         }
 
         public override void Draw(IGraphics graphics, AppTime appTime)
@@ -61,7 +68,7 @@ namespace Shinobytes.Console.Forms
             else
             {
                 graphics.DrawLine(posX, posY, posX + Size.Width, posY, this.BackgroundColor);
-                graphics.DrawString(this.Text, posX, posY, this.ForegroundColor, this.BackgroundColor);
+                graphics.DrawString(this.Password ? new string(PasswordChar, this.Text.Length) : this.Text, posX, posY, this.ForegroundColor, this.BackgroundColor);
                 //graphics.DrawLine(posX + (Size.Width - Text.Length), posY, posX + Size.Width, posY, this.BackgroundColor);
             }
 
@@ -87,45 +94,49 @@ namespace Shinobytes.Console.Forms
             }
         }
 
+        public override void Focus()
+        {
+            base.Focus();
+            this.cursorAnimationState = true;
+        }
+
         public override bool OnKeyDown(KeyInfo key)
         {
             var topBorder = this.BorderThickness.Top > 0 ? 1 : 0;
             var rightBorder = this.BorderThickness.Right > 0 ? 1 : 0;
             var width = AreaEdit ? this.Size.Width : (this.Text?.Length + 1) ?? 0;
             var height = AreaEdit ? this.Size.Height : 1;
-            if (this.IsArrowKey(key.Key))
+
+            if (key.KeyChar == '{')
+            {
+                // ctrl+v ?
+                var text = WindowsClipboard.GetText();
+                if (!string.IsNullOrEmpty(text))
+                {
+                    PasteText(text);
+                }
+                return false;
+            }
+
+            if (!AreaEdit && key.Key == ConsoleKey.Enter && this.Parent is ContainerControl container)
+            {
+                return !container.TryFocusNext();
+            }
+            else if (this.IsArrowKey(key.Key))
             {
                 if (key.Key == ConsoleKey.RightArrow)
                 {
-                    this.CursorX++;
-                    if (this.CursorX >= width)
-                    {
-                        this.CursorX = width - rightBorder;
-                        if (this.CursorY < (height - topBorder))
-                        {
-                            this.CursorX = 0;
-                            this.CursorY++;
-                        }
-                    }
+                    MoveCursorRight();
                 }
                 else if (key.Key == ConsoleKey.LeftArrow)
                 {
-                    this.CursorX--;
-                    if (this.CursorX < 0)
-                    {
-                        this.CursorX = 0;
-                        if (this.CursorY > 0)
-                        {
-                            this.CursorX = width - rightBorder;
-                            this.CursorY--;
-                        }
-                    }
+                    MoveCursorLeft();
                 }
                 else
                 {
                     if (!AreaEdit)
                     {
-                        return HandleNavigationKeys(key);// up and down should allow navigation if we are not an area edit                        
+                        return HandleNavigationKeys(key);// up and down should allow navigation if we are not an area edit
                     }
 
                     if (key.Key == ConsoleKey.UpArrow)
@@ -134,15 +145,17 @@ namespace Shinobytes.Console.Forms
                         if (this.CursorY < 0)
                         {
                             this.CursorY = 0;
+                            return HandleNavigationKeys(key);
                         }
                     }
 
                     if (key.Key == ConsoleKey.DownArrow)
                     {
                         this.CursorY++;
-                        if (this.CursorY >= (height - topBorder))
+                        if (this.CursorY > (height - topBorder))
                         {
                             this.CursorY = height - topBorder;
+                            return HandleNavigationKeys(key);
                         }
                     }
                 }
@@ -180,26 +193,314 @@ namespace Shinobytes.Console.Forms
             else if (key.Key == ConsoleKey.Home)
             {
                 this.CursorX = 0;
+                this.cursorAnimationState = true;
             }
             else if (key.Key == ConsoleKey.End)
             {
                 this.CursorX = width - rightBorder;
+                this.cursorAnimationState = true;
             }
             else if (key.Key == ConsoleKey.PageUp)
             {
                 this.CursorY = 0; // for now
+                this.cursorAnimationState = true;
             }
             else if (key.Key == ConsoleKey.PageDown)
             {
-                // not implemented
+                this.CursorY = height - topBorder;
+                this.cursorAnimationState = true;
             }
             else
             {
-                this.Text = this.Text.Insert(this.CursorX, key.KeyChar + "");
-                this.CursorX++;
+                EnsureTextSize();
+
+                if (AreaEdit)
+                {
+                    AreaTextInsert(key.KeyChar + "");
+                }
+                else
+                {
+                    this.Text = this.Text.Insert(this.CursorX, key.KeyChar + "");
+                    this.CursorX++;
+                }
             }
 
             return false;
         }
+
+        private void PasteText(string text)
+        {
+            EnsureTextSize();
+            if (AreaEdit)
+            {
+                return; // not supported yet.
+            }
+
+            this.Text = this.Text.Insert(this.CursorX, text);
+        }
+
+        private void AreaTextInsert(string text)
+        {
+            // multi line text, fill a char grid [x,y] using width, height
+            //this.Text = string.Join(Environment.NewLine)
+
+            this.Text = this.Text.Insert(this.CursorX, text);
+            this.CursorX++;
+        }
+
+        private void EnsureTextSize()
+        {
+            if (!this.AreaEdit)
+            {
+                if (Text == null)
+                {
+                    Text = string.Empty;
+                }
+
+                if (Text.Length < this.CursorX)
+                {
+                    Text = Text.PadRight(this.CursorX, ' ');
+                }
+                return;
+            }
+
+            // build multi line text
+        }
+
+        private void MoveCursorRight()
+        {
+            var topBorder = this.BorderThickness.Top > 0 ? 1 : 0;
+            var rightBorder = this.BorderThickness.Right > 0 ? 1 : 0;
+            var width = AreaEdit ? this.Size.Width : (this.Text?.Length + 1) ?? 0;
+            var height = AreaEdit ? this.Size.Height : 1;
+
+            this.CursorX++;
+            if (this.CursorX >= width)
+            {
+                this.CursorX = width - rightBorder;
+                if (this.CursorY < (height - topBorder))
+                {
+                    this.CursorX = 0;
+                    this.CursorY++;
+                }
+            }
+        }
+
+        private void MoveCursorLeft()
+        {
+            var rightBorder = this.BorderThickness.Right > 0 ? 1 : 0;
+            var width = AreaEdit ? this.Size.Width : (this.Text?.Length + 1) ?? 0;
+
+            this.CursorX--;
+            if (this.CursorX < 0)
+            {
+                this.CursorX = 0;
+                if (this.CursorY > 0)
+                {
+                    this.CursorX = width - rightBorder;
+                    this.CursorY--;
+                }
+            }
+        }
     }
+}
+
+public static class WindowsClipboard
+{
+    public static async Task SetTextAsync(string text, CancellationToken cancellation)
+    {
+        await TryOpenClipboardAsync(cancellation);
+
+        InnerSet(text);
+    }
+
+    public static void SetText(string text)
+    {
+        TryOpenClipboard();
+
+        InnerSet(text);
+    }
+
+    static void InnerSet(string text)
+    {
+        EmptyClipboard();
+        IntPtr hGlobal = default;
+        try
+        {
+            var bytes = (text.Length + 1) * 2;
+            hGlobal = Marshal.AllocHGlobal(bytes);
+
+            if (hGlobal == default)
+            {
+                ThrowWin32();
+            }
+
+            var target = GlobalLock(hGlobal);
+
+            if (target == default)
+            {
+                ThrowWin32();
+            }
+
+            try
+            {
+                Marshal.Copy(text.ToCharArray(), 0, target, text.Length);
+            }
+            finally
+            {
+                GlobalUnlock(target);
+            }
+
+            if (SetClipboardData(cfUnicodeText, hGlobal) == default)
+            {
+                ThrowWin32();
+            }
+
+            hGlobal = default;
+        }
+        finally
+        {
+            if (hGlobal != default)
+            {
+                Marshal.FreeHGlobal(hGlobal);
+            }
+
+            CloseClipboard();
+        }
+    }
+
+    static async Task TryOpenClipboardAsync(CancellationToken cancellation)
+    {
+        var num = 10;
+        while (true)
+        {
+            if (OpenClipboard(default))
+            {
+                break;
+            }
+
+            if (--num == 0)
+            {
+                ThrowWin32();
+            }
+
+            await Task.Delay(100, cancellation);
+        }
+    }
+
+    static void TryOpenClipboard()
+    {
+        var num = 10;
+        while (true)
+        {
+            if (OpenClipboard(default))
+            {
+                break;
+            }
+
+            if (--num == 0)
+            {
+                ThrowWin32();
+            }
+
+            Thread.Sleep(100);
+        }
+    }
+
+    public static async Task<string> GetTextAsync(CancellationToken cancellation)
+    {
+        if (!IsClipboardFormatAvailable(cfUnicodeText))
+        {
+            return null;
+        }
+        await TryOpenClipboardAsync(cancellation);
+
+        return InnerGet();
+    }
+
+    public static string GetText()
+    {
+        if (!IsClipboardFormatAvailable(cfUnicodeText))
+        {
+            return null;
+        }
+        TryOpenClipboard();
+
+        return InnerGet();
+    }
+
+    static string InnerGet()
+    {
+        IntPtr handle = default;
+
+        IntPtr pointer = default;
+        try
+        {
+            handle = GetClipboardData(cfUnicodeText);
+            if (handle == default)
+            {
+                return null;
+            }
+
+            pointer = GlobalLock(handle);
+            if (pointer == default)
+            {
+                return null;
+            }
+
+            var size = GlobalSize(handle);
+            var buff = new byte[size];
+
+            Marshal.Copy(pointer, buff, 0, size);
+
+            return Encoding.Unicode.GetString(buff).TrimEnd('\0');
+        }
+        finally
+        {
+            if (pointer != default)
+            {
+                GlobalUnlock(handle);
+            }
+
+            CloseClipboard();
+        }
+    }
+
+    const uint cfUnicodeText = 13;
+
+    static void ThrowWin32()
+    {
+        throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
+
+    [DllImport("User32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool IsClipboardFormatAvailable(uint format);
+
+    [DllImport("User32.dll", SetLastError = true)]
+    static extern IntPtr GetClipboardData(uint uFormat);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern IntPtr GlobalLock(IntPtr hMem);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool GlobalUnlock(IntPtr hMem);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool OpenClipboard(IntPtr hWndNewOwner);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool CloseClipboard();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern IntPtr SetClipboardData(uint uFormat, IntPtr data);
+
+    [DllImport("user32.dll")]
+    static extern bool EmptyClipboard();
+
+    [DllImport("Kernel32.dll", SetLastError = true)]
+    static extern int GlobalSize(IntPtr hMem);
 }

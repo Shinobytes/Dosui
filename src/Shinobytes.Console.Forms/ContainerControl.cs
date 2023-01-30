@@ -105,17 +105,26 @@ namespace Shinobytes.Console.Forms
             return true;
         }
 
+        public bool TryFocusNext()
+        {
+            var activeControl = ActiveControl;
+            var nextItem = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus && (activeControl == null || activeControl is MenuStrip || x.TabIndex > activeControl.TabIndex));
+            if (nextItem != null)
+            {
+                nextItem.Focus();
+                return true;
+            }
+            return false;
+        }
+
         public override bool OnKeyDown(KeyInfo key)
         {
             // input movement
             if (key.Key == ConsoleKey.Tab)
             {
                 // change focus to next item
-                var activeControl = ActiveControl;
-                var nextItem = this.Controls.OrderBy(x => x.TabIndex).FirstOrDefault(x => x.CanFocus && (activeControl == null || activeControl is MenuStrip || x.TabIndex > activeControl.TabIndex));
-                if (nextItem != null)
+                if (TryFocusNext())
                 {
-                    nextItem.Focus();
                     return false;
                 }
             }
@@ -140,7 +149,8 @@ namespace Shinobytes.Console.Forms
                     }
                 }
 
-                Controls.Where(x => x.ShortcutListener || x.HasFocus && !x.EventBlocked())
+                Controls
+                    .Where(x => x.ShortcutListener || x.HasFocus && !x.EventBlocked())
                     .DoWhile(x => x.OnKeyDown(key));
 
                 // navigate to first best control if no control has focus
